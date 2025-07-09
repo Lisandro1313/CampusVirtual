@@ -11,6 +11,7 @@ import { StudentDashboard } from './pages/StudentDashboard';
 import { TeacherDashboard } from './pages/TeacherDashboard';
 import { NewCoursePlayer } from './pages/NewCoursePlayer';
 import { Announcements } from './pages/Announcements';
+import { CreateAnnouncement } from './pages/CreateAnnouncement';
 import { Analytics } from './pages/Analytics';
 import { StudentProgress } from './pages/StudentProgress';
 import { TeacherAnalytics } from './pages/TeacherAnalytics';
@@ -19,6 +20,7 @@ import { Profile } from './pages/Profile';
 import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { NewCourse } from './pages/NewCourse';
+import { CourseDetail } from './pages/CourseDetail';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({ 
   children, 
@@ -66,7 +68,16 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/courses" element={<Courses />} />
+            <Route path="/courses/:courseId" element={<CourseDetail />} />
             <Route path="/announcements" element={<Announcements />} />
+            <Route 
+              path="/announcements/new" 
+              element={
+                <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                  <CreateAnnouncement />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/cart" element={<Cart />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
