@@ -21,6 +21,7 @@ import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { NewCourse } from './pages/NewCourse';
 import { CourseDetail } from './pages/CourseDetail';
+import { Register } from './pages/Register';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({ 
   children, 
@@ -85,11 +86,10 @@ function AppContent() {
               path="/login" 
               element={auth.isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} 
             />
-            <Route path="/register" element={
-              <div className="min-h-screen flex items-center justify-center">
-                <div className="text-2xl">Register Page - Coming Soon</div>
-              </div>
-            } />
+            <Route 
+              path="/register" 
+              element={auth.isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />} 
+            />
             <Route 
               path="/dashboard" 
               element={

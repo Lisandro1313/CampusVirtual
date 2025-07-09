@@ -41,7 +41,9 @@ export const useSearch = () => {
       results = results.filter(course =>
         course.title.toLowerCase().includes(term) ||
         course.description.toLowerCase().includes(term) ||
+        course.shortDescription.toLowerCase().includes(term) ||
         course.instructor.toLowerCase().includes(term) ||
+        course.category.toLowerCase().includes(term) ||
         course.tags.some(tag => tag.toLowerCase().includes(term))
       );
     }
