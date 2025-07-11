@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export const Login: React.FC = () => {
@@ -38,14 +38,18 @@ export const Login: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
-            <GraduationCap className="h-12 w-12 text-blue-400" />
-            <span className="text-3xl font-bold text-white">Campus Lisandro</span>
+            <img 
+              src="/src/assets/Imagen de WhatsApp 2025-07-10 a las 15.54.58_bc651df1.jpg" 
+              alt="E.S.FD Logo" 
+              className="h-12 w-12 rounded-lg object-cover"
+            />
+            <span className="text-3xl font-bold text-white">E.S.FD</span>
           </Link>
           <h2 className="text-3xl font-bold text-white mb-2">
             Iniciar Sesión
           </h2>
           <p className="text-blue-200">
-            Accede a tu cuenta para continuar aprendiendo
+            Accede a tu cuenta de formación docente
           </p>
         </div>
 
@@ -72,9 +76,6 @@ export const Login: React.FC = () => {
               </button>
             ))}
           </div>
-          <p className="text-blue-200 text-xs text-center mt-2">
-            Contraseña para todos: <code className="bg-white/20 px-1 rounded">password123</code>
-          </p>
         </div>
 
         <form className="bg-white rounded-2xl shadow-2xl p-8 space-y-6" onSubmit={handleSubmit}>

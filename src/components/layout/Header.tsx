@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GraduationCap, Menu, X, ShoppingCart, User, Search } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, Search } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import { useSearch } from '../../hooks/useSearch';
@@ -25,8 +25,12 @@ export const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <GraduationCap className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">Campus Lisandro</span>
+            <img 
+              src="/src/assets/Imagen de WhatsApp 2025-07-10 a las 15.54.58_bc651df1.jpg" 
+              alt="E.S.FD Logo" 
+              className="h-10 w-10 rounded-lg object-cover"
+            />
+            <span className="text-2xl font-bold text-gray-900">E.S.FD</span>
           </Link>
 
           {/* Desktop Navigation */}

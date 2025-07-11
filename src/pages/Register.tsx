@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, Mail, Lock, Eye, EyeOff, AlertCircle, User } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, User } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export const Register: React.FC = () => {
@@ -49,14 +49,18 @@ export const Register: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
-            <GraduationCap className="h-12 w-12 text-blue-400" />
-            <span className="text-3xl font-bold text-white">Campus Lisandro</span>
+            <img 
+              src="/src/assets/Imagen de WhatsApp 2025-07-10 a las 15.54.58_bc651df1.jpg" 
+              alt="E.S.FD Logo" 
+              className="h-12 w-12 rounded-lg object-cover"
+            />
+            <span className="text-3xl font-bold text-white">E.S.FD</span>
           </Link>
           <h2 className="text-3xl font-bold text-white mb-2">
             Crear Cuenta
           </h2>
           <p className="text-blue-200">
-            Únete a nuestra comunidad de aprendizaje
+            Únete a nuestra comunidad de formación docente
           </p>
         </div>
 

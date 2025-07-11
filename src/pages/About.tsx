@@ -5,28 +5,28 @@ import { Link } from 'react-router-dom';
 export const About: React.FC = () => {
   const team = [
     {
-      name: 'Lisandro García',
-      role: 'Fundador & CEO',
+      name: 'Norma Skuletich',
+      role: 'Directora & Magister en Educación',
       image: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&dpr=2',
-      bio: 'Visionario en educación digital con más de 15 años de experiencia en tecnología educativa.'
+      bio: 'Magister en Educación con más de 15 años de experiencia en formación docente y gestión educativa.'
     },
     {
-      name: 'María González',
-      role: 'Directora Académica',
+      name: 'Prof. Ana Martínez',
+      role: 'Coordinadora Académica',
       image: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&dpr=2',
-      bio: 'Experta en desarrollo curricular y metodologías de aprendizaje online.'
+      bio: 'Especialista en desarrollo curricular y metodologías de enseñanza innovadoras.'
     },
     {
-      name: 'Carlos Mendoza',
-      role: 'Director de Tecnología',
+      name: 'Lic. Carlos Fernández',
+      role: 'Coordinador de Tecnología Educativa',
       image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&dpr=2',
-      bio: 'Ingeniero de software especializado en plataformas educativas escalables.'
+      bio: 'Licenciado en Educación especializado en integración de tecnología en el aula.'
     },
     {
-      name: 'Ana Rodríguez',
-      role: 'Directora de Marketing',
+      name: 'Prof. Laura Gómez',
+      role: 'Coordinadora de Prácticas',
       image: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&dpr=2',
-      bio: 'Estratega digital enfocada en conectar estudiantes con oportunidades de crecimiento.'
+      bio: 'Profesora especializada en acompañamiento de prácticas docentes y evaluación formativa.'
     }
   ];
 
@@ -54,10 +54,10 @@ export const About: React.FC = () => {
   ];
 
   const achievements = [
-    { number: '50,000+', label: 'Estudiantes Graduados' },
-    { number: '500+', label: 'Cursos Disponibles' },
-    { number: '150+', label: 'Instructores Expertos' },
-    { number: '95%', label: 'Tasa de Satisfacción' }
+    { number: '500+', label: 'Docentes Formados' },
+    { number: '25+', label: 'Cursos Especializados' },
+    { number: '15+', label: 'Años de Experiencia' },
+    { number: '98%', label: 'Tasa de Satisfacción' }
   ];
 
   return (
@@ -85,22 +85,22 @@ export const About: React.FC = () => {
             <div>
               <h2 className="text-4xl font-bold text-gray-900 mb-6">Nuestra Misión</h2>
               <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                Proporcionar educación online de clase mundial que sea accesible, práctica y relevante 
-                para las demandas del mercado laboral actual. Nos enfocamos en crear experiencias de 
-                aprendizaje que no solo transmitan conocimiento, sino que inspiren y transformen vidas.
+                Brindar formación docente de excelencia que prepare a los educadores para los desafíos 
+                del siglo XXI. Nos enfocamos en metodologías innovadoras, tecnología educativa y 
+                desarrollo integral del docente como agente de cambio social.
               </p>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="text-gray-700">Educación accesible para todos</span>
+                  <span className="text-gray-700">Formación docente de calidad</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="text-gray-700">Contenido actualizado constantemente</span>
+                  <span className="text-gray-700">Metodologías pedagógicas innovadoras</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="text-gray-700">Certificaciones reconocidas por la industria</span>
+                  <span className="text-gray-700">Certificaciones oficiales reconocidas</span>
                 </div>
               </div>
             </div>
@@ -112,7 +112,7 @@ export const About: React.FC = () => {
               />
               <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-lg">
                 <div className="text-3xl font-bold text-blue-600">2019</div>
-                <div className="text-gray-600">Año de fundación</div>
+                <div className="text-gray-600">Fundación E.S.FD</div>
               </div>
             </div>
           </div>
@@ -191,12 +191,12 @@ export const About: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gray-900 text-white">
+            Formando los Docentes del 
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Futuro</span>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold mb-6">¿Listo para Comenzar tu Transformación?</h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Únete a miles de estudiantes que ya están construyendo su futuro con Campus Lisandro
+            En E.S.FD, creemos que la formación docente de calidad es la base de una educación transformadora. 
+            Únete a cientos de docentes que ya han transformado su práctica educativa con E.S.FD
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

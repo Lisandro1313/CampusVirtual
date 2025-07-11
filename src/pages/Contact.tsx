@@ -28,20 +28,20 @@ export const Contact: React.FC = () => {
     {
       icon: <Mail className="h-6 w-6" />,
       title: 'Email',
-      details: 'info@campuslisandro.com',
+      details: 'esc.sup.paradocentes@gmail.com',
       description: 'Respuesta en 24 horas'
     },
     {
       icon: <Phone className="h-6 w-6" />,
       title: 'Teléfono',
-      details: '+54 11 1234-5678',
+      details: '1121673242',
       description: 'Lun - Vie, 9:00 - 18:00'
     },
     {
       icon: <MapPin className="h-6 w-6" />,
       title: 'Oficina',
-      details: 'Buenos Aires, Argentina',
-      description: 'Av. Corrientes 1234, CABA'
+      details: 'Punta Lara, Argentina',
+      description: 'Calle 102 n 735'
     },
     {
       icon: <Clock className="h-6 w-6" />,
@@ -275,7 +275,7 @@ export const Contact: React.FC = () => {
                     Centro de Ayuda
                   </button>
                   <button className="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                    Programar Llamada
+                  <p className="text-gray-600">Calle 102 n 735, Punta Lara</p>
                   </button>
                 </div>
               </div>
@@ -289,7 +289,7 @@ export const Contact: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Nuestra Ubicación</h2>
-            <p className="text-gray-600">Visítanos en nuestras oficinas en el corazón de Buenos Aires</p>
+            <p className="text-gray-600">Visítanos en nuestras oficinas en Punta Lara</p>
           </div>
           
           <div className="bg-gray-200 rounded-2xl h-96 flex items-center justify-center">

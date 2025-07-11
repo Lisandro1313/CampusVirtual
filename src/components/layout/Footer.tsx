@@ -1,5 +1,5 @@
 import React from 'react';
-import { GraduationCap, Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Footer: React.FC = () => {
@@ -10,12 +10,16 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-1 lg:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <GraduationCap className="h-8 w-8 text-blue-400" />
-              <span className="text-2xl font-bold">Campus Lisandro</span>
+              <img 
+                src="/src/assets/Imagen de WhatsApp 2025-07-10 a las 15.54.58_bc651df1.jpg" 
+                alt="E.S.FD Logo" 
+                className="h-8 w-8 rounded-lg object-cover"
+              />
+              <span className="text-2xl font-bold">E.S.FD</span>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
-              La plataforma líder en educación online en América Latina. Aprende de expertos y 
-              desarrolla las habilidades que necesitas para destacar en el mundo digital.
+              Escuela Superior de Formación Docente. Educación de calidad para formar los docentes del futuro.
+              Dirigida por Norma Skuletich, Magister en Educación.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
@@ -71,15 +75,21 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-blue-400" />
-                <span className="text-gray-300">info@campuslisandro.com</span>
+                <span className="text-gray-300">esc.sup.paradocentes@gmail.com</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-blue-400" />
-                <span className="text-gray-300">+54 11 1234-5678</span>
+                <span className="text-gray-300">1121673242</span>
               </li>
               <li className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-blue-400" />
-                <span className="text-gray-300">Buenos Aires, Argentina</span>
+                <span className="text-gray-300">Calle 102 n 735, Punta Lara</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <Globe className="h-5 w-5 text-blue-400" />
+                <a href="http://www.horizontepedagogico.com" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-400 transition-colors">
+                  www.horizontepedagogico.com
+                </a>
               </li>
             </ul>
           </div>
@@ -88,7 +98,7 @@ export const Footer: React.FC = () => {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 Campus Lisandro. Todos los derechos reservados.
+              © 2024 E.S.FD - Escuela Superior de Formación Docente. Todos los derechos reservados.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link to="/privacy" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">

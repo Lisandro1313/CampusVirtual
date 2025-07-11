@@ -9,82 +9,82 @@ export const mockUsers: User[] = [
     role: 'student',
     avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
     joinedAt: '2024-01-15T00:00:00.000Z',
-    bio: 'Estudiante apasionado por la tecnología y el desarrollo web.',
-    location: 'Buenos Aires, Argentina'
+    bio: 'Estudiante de formación docente, apasionado por la educación.',
+    location: 'Punta Lara, Argentina'
   },
   {
     id: '2',
-    name: 'María González',
+    name: 'Norma Skuletich',
     email: 'docente@campus.com',
     role: 'teacher',
     avatar: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
     joinedAt: '2023-08-10T00:00:00.000Z',
-    bio: 'Desarrolladora Full Stack con 8 años de experiencia. Especialista en React y Node.js.',
-    location: 'Córdoba, Argentina'
+    bio: 'Magister en Educación. Directora de E.S.FD con más de 15 años de experiencia en formación docente.',
+    location: 'Calle 102 n 735, Punta Lara'
   },
   {
     id: '3',
-    name: 'Admin Campus',
+    name: 'Admin E.S.FD',
     email: 'admin@campus.com',
     role: 'admin',
     avatar: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
     joinedAt: '2023-01-01T00:00:00.000Z',
-    bio: 'Administrador del sistema Campus Lisandro.',
-    location: 'Buenos Aires, Argentina'
+    bio: 'Administrador del sistema E.S.FD.',
+    location: 'Punta Lara, Argentina'
   }
 ];
 
 export const featuredCourses: Course[] = [
   {
     id: '1',
-    title: 'Desarrollo Web Full Stack con React y Node.js',
-    description: 'Aprende a crear aplicaciones web completas desde cero usando las tecnologías más demandadas del mercado. Este curso te llevará desde los fundamentos hasta proyectos avanzados.',
-    shortDescription: 'Domina React, Node.js, y MongoDB para crear aplicaciones web profesionales.',
-    instructor: 'María González',
+    title: 'Metodologías de Enseñanza Innovadoras',
+    description: 'Descubre las metodologías pedagógicas más efectivas para el aula moderna. Aprende técnicas innovadoras que transformarán tu práctica docente y mejorarán el aprendizaje de tus estudiantes.',
+    shortDescription: 'Técnicas pedagógicas innovadoras para el aula del siglo XXI.',
+    instructor: 'Norma Skuletich',
     instructorId: '2',
     instructorAvatar: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-    price: 89.99,
-    originalPrice: 129.99,
-    image: 'https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
-    category: 'Tecnología',
-    duration: '12 semanas',
-    lessons: 45,
-    students: 1250,
+    price: 15000,
+    originalPrice: 20000,
+    image: 'https://images.pexels.com/photos/8197530/pexels-photo-8197530.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
+    category: 'Pedagogía',
+    duration: '8 semanas',
+    lessons: 24,
+    students: 125,
     rating: 4.8,
     featured: true,
     level: 'intermediate',
-    tags: ['React', 'Node.js', 'JavaScript', 'MongoDB'],
+    tags: ['Pedagogía', 'Metodología', 'Innovación', 'Didáctica'],
     curriculum: [
       { 
         id: '1', 
-        title: 'Introducción a React', 
+        title: 'Fundamentos de la Pedagogía Moderna', 
         duration: '45 min', 
         type: 'video',
         videoUrl: 'https://www.youtube.com/embed/dGcsHMXbSOA',
-        description: 'Aprende los conceptos básicos de React y cómo configurar tu primer proyecto.'
+        description: 'Conceptos fundamentales de las nuevas metodologías pedagógicas.'
       },
       { 
         id: '2', 
-        title: 'Componentes y Props', 
+        title: 'Técnicas de Enseñanza Activa', 
         duration: '60 min', 
         type: 'video',
         videoUrl: 'https://www.youtube.com/embed/dGcsHMXbSOA',
-        description: 'Domina la creación de componentes reutilizables y el paso de datos con props.'
+        description: 'Estrategias para involucrar activamente a los estudiantes en el proceso de aprendizaje.'
       },
       { 
         id: '3', 
-        title: 'Estado y Hooks', 
+        title: 'Evaluación Formativa', 
         duration: '75 min', 
         type: 'video',
         videoUrl: 'https://www.youtube.com/embed/dGcsHMXbSOA',
-        description: 'Maneja el estado de la aplicación con useState y otros hooks esenciales.'
+        description: 'Métodos de evaluación continua para mejorar el aprendizaje.'
       },
       { 
         id: '4', 
-        title: 'Ejercicio Práctico: Todo App', 
+        title: 'Ejercicio Práctico: Planificación de Clase', 
         duration: '30 min', 
         type: 'quiz',
-        description: 'Pon en práctica lo aprendido creando una aplicación de tareas.'
+        description: 'Aplica las metodologías aprendidas en una planificación real.'
       },
     ],
     createdAt: '2024-01-01T00:00:00.000Z',
@@ -92,39 +92,39 @@ export const featuredCourses: Course[] = [
   },
   {
     id: '2',
-    title: 'Diseño UX/UI Profesional con Figma',
-    description: 'Conviértete en un diseñador UX/UI profesional y aprende a crear interfaces intuitivas y atractivas que mejoren la experiencia del usuario.',
-    shortDescription: 'Diseña interfaces profesionales y mejora la experiencia del usuario.',
-    instructor: 'Carlos Mendoza',
-    instructorId: '4',
+    title: 'Tecnología Educativa y Herramientas Digitales',
+    description: 'Integra la tecnología en el aula de manera efectiva. Aprende a utilizar herramientas digitales que potencien el aprendizaje y la participación de tus estudiantes.',
+    shortDescription: 'Integración efectiva de tecnología en el proceso educativo.',
+    instructor: 'Norma Skuletich',
+    instructorId: '2',
     instructorAvatar: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-    price: 69.99,
-    originalPrice: 99.99,
-    image: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
-    category: 'Diseño',
-    duration: '8 semanas',
-    lessons: 32,
-    students: 890,
+    price: 12000,
+    originalPrice: 16000,
+    image: 'https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
+    category: 'Tecnología Educativa',
+    duration: '6 semanas',
+    lessons: 18,
+    students: 89,
     rating: 4.9,
     featured: true,
     level: 'beginner',
-    tags: ['Figma', 'UX', 'UI', 'Prototipado'],
+    tags: ['Tecnología', 'Herramientas Digitales', 'Innovación', 'TIC'],
     curriculum: [
       { 
         id: '1', 
-        title: 'Fundamentos del Diseño UX', 
+        title: 'Introducción a la Tecnología Educativa', 
         duration: '50 min', 
         type: 'video',
         videoUrl: 'https://www.youtube.com/embed/dGcsHMXbSOA',
-        description: 'Comprende los principios básicos del diseño centrado en el usuario.'
+        description: 'Conceptos básicos de la integración tecnológica en educación.'
       },
       { 
         id: '2', 
-        title: 'Wireframing y Prototipado', 
+        title: 'Herramientas Digitales para el Aula', 
         duration: '65 min', 
         type: 'video',
         videoUrl: 'https://www.youtube.com/embed/dGcsHMXbSOA',
-        description: 'Aprende a crear wireframes y prototipos efectivos en Figma.'
+        description: 'Plataformas y aplicaciones útiles para la enseñanza.'
       },
     ],
     createdAt: '2024-01-05T00:00:00.000Z',
@@ -132,38 +132,38 @@ export const featuredCourses: Course[] = [
   },
   {
     id: '3',
-    title: 'Marketing Digital y Redes Sociales',
-    description: 'Estrategias completas de marketing digital para hacer crecer tu negocio en el mundo digital y maximizar tu presencia online.',
-    shortDescription: 'Domina las estrategias de marketing digital más efectivas.',
-    instructor: 'Ana Rodríguez',
-    instructorId: '5',
+    title: 'Gestión del Aula y Disciplina Positiva',
+    description: 'Desarrolla habilidades para crear un ambiente de aprendizaje positivo y productivo. Aprende técnicas de gestión del aula basadas en el respeto mutuo y la disciplina positiva.',
+    shortDescription: 'Técnicas efectivas para la gestión del aula y disciplina positiva.',
+    instructor: 'Norma Skuletich',
+    instructorId: '2',
     instructorAvatar: 'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-    price: 79.99,
-    image: 'https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
-    category: 'Marketing',
-    duration: '10 semanas',
-    lessons: 38,
-    students: 1450,
+    price: 10000,
+    image: 'https://images.pexels.com/photos/8197528/pexels-photo-8197528.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
+    category: 'Gestión Educativa',
+    duration: '4 semanas',
+    lessons: 16,
+    students: 145,
     rating: 4.7,
     featured: true,
     level: 'intermediate',
-    tags: ['Marketing', 'Redes Sociales', 'SEO', 'Publicidad'],
+    tags: ['Gestión', 'Disciplina', 'Convivencia', 'Aula'],
     curriculum: [
       { 
         id: '1', 
-        title: 'Estrategias de Marketing Digital', 
+        title: 'Fundamentos de la Gestión del Aula', 
         duration: '55 min', 
         type: 'video',
         videoUrl: 'https://www.youtube.com/embed/dGcsHMXbSOA',
-        description: 'Fundamentos y estrategias clave del marketing digital moderno.'
+        description: 'Principios básicos para crear un ambiente de aprendizaje efectivo.'
       },
       { 
         id: '2', 
-        title: 'SEO y SEM', 
+        title: 'Técnicas de Disciplina Positiva', 
         duration: '70 min', 
         type: 'video',
         videoUrl: 'https://www.youtube.com/embed/dGcsHMXbSOA',
-        description: 'Optimización para motores de búsqueda y marketing en buscadores.'
+        description: 'Estrategias para mantener la disciplina basada en el respeto.'
       },
     ],
     createdAt: '2024-01-10T00:00:00.000Z',
@@ -174,27 +174,27 @@ export const featuredCourses: Course[] = [
 export const testimonials: Testimonial[] = [
   {
     id: '1',
-    name: 'Laura Martínez',
+    name: 'María González',
     avatar: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-    course: 'Desarrollo Web Full Stack',
+    course: 'Metodologías de Enseñanza Innovadoras',
     rating: 5,
-    comment: 'Excelente curso, muy completo y bien explicado. Los proyectos prácticos me ayudaron mucho a consolidar los conocimientos.'
+    comment: 'Excelente curso, transformó completamente mi manera de enseñar. Las técnicas son muy prácticas y efectivas.'
   },
   {
     id: '2',
-    name: 'Roberto Chen',
+    name: 'Carlos Mendoza',
     avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-    course: 'Diseño UX/UI con Figma',
+    course: 'Tecnología Educativa',
     rating: 5,
-    comment: 'El instructor explica de manera muy clara y los ejercicios son súper útiles. Recomiendo este curso a cualquiera que quiera aprender diseño.'
+    comment: 'Norma explica de manera muy clara cómo integrar la tecnología en el aula. Muy recomendable.'
   },
   {
     id: '3',
-    name: 'Sofía Herrera',
+    name: 'Ana Rodríguez',
     avatar: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-    course: 'Marketing Digital',
+    course: 'Gestión del Aula',
     rating: 5,
-    comment: 'Increíble la cantidad de estrategias que aprendí. Ya estoy aplicando todo en mi negocio y veo resultados reales.'
+    comment: 'Las técnicas de disciplina positiva han mejorado enormemente el clima en mi aula. Excelente formación.'
   }
 ];
 

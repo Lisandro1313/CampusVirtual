@@ -17,13 +17,13 @@ export const Hero: React.FC = () => {
           {/* Content */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-              Transforma tu 
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Futuro </span>
-              con Educación Online
+              Formación Docente de 
+              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Excelencia </span>
+              para el Futuro
             </h1>
             <p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
-              Aprende de expertos, desarrolla habilidades demandadas y acelera tu carrera profesional 
-              con nuestros cursos premium.
+              Escuela Superior de Formación Docente dirigida por Norma Skuletich, Magister en Educación. 
+              Formamos los educadores del mañana con metodologías innovadoras.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
@@ -46,22 +46,22 @@ export const Hero: React.FC = () => {
                 <div className="flex items-center justify-center w-12 h-12 bg-blue-500 rounded-xl mb-2">
                   <Users className="h-6 w-6" />
                 </div>
-                <div className="text-2xl font-bold">15,000+</div>
-                <div className="text-blue-200 text-sm">Estudiantes Activos</div>
+                <div className="text-2xl font-bold">500+</div>
+                <div className="text-blue-200 text-sm">Docentes Formados</div>
               </div>
               <div className="flex flex-col items-center lg:items-start">
                 <div className="flex items-center justify-center w-12 h-12 bg-purple-500 rounded-xl mb-2">
                   <BookOpen className="h-6 w-6" />
                 </div>
-                <div className="text-2xl font-bold">150+</div>
-                <div className="text-blue-200 text-sm">Cursos Premium</div>
+                <div className="text-2xl font-bold">25+</div>
+                <div className="text-blue-200 text-sm">Cursos Especializados</div>
               </div>
               <div className="flex flex-col items-center lg:items-start">
                 <div className="flex items-center justify-center w-12 h-12 bg-green-500 rounded-xl mb-2">
                   <Award className="h-6 w-6" />
                 </div>
-                <div className="text-2xl font-bold">98%</div>
-                <div className="text-blue-200 text-sm">Satisfacción</div>
+                <div className="text-2xl font-bold">15+</div>
+                <div className="text-blue-200 text-sm">Años de Experiencia</div>
               </div>
             </div>
           </div>
