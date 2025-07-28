@@ -1,15 +1,18 @@
 
 const express = require('express');
 const router = express.Router();
-const mercadopago = require('mercadopago');
+const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 const Pago = require('../models/Pago');
 const Clase = require('../models/Clase');
 const jwt = require('jsonwebtoken');
 
 // Configurar MercadoPago
-mercadopago.configure({
-    access_token: process.env.MERCADOPAGO_ACCESS_TOKEN
+const client = new MercadoPagoConfig({
+    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN
 });
+
+const preference = new Preference(client);
+const payment = new Payment(client);
 
 // Middleware de autenticación
 const authenticateToken = (req, res, next) => {
@@ -60,7 +63,7 @@ router.post('/crear-preferencia', authenticateToken, async (req, res) => {
         await nuevoPago.save();
 
         // Crear preferencia en MercadoPago
-        const preference = {
+        const preferenceData = {
             items: [
                 {
                     title: clase.titulo,
@@ -85,16 +88,16 @@ router.post('/crear-preferencia', authenticateToken, async (req, res) => {
             statement_descriptor: "EDUCACION ONLINE"
         };
 
-        const response = await mercadopago.preferences.create(preference);
+        const response = await preference.create({ body: preferenceData });
         
         // Guardar ID de preferencia
-        nuevoPago.preferenciaId = response.body.id;
+        nuevoPago.preferenciaId = response.id;
         await nuevoPago.save();
 
         res.json({
-            preference_id: response.body.id,
-            init_point: response.body.init_point,
-            sandbox_init_point: response.body.sandbox_init_point,
+            preference_id: response.id,
+            init_point: response.init_point,
+            sandbox_init_point: response.sandbox_init_point,
             pago_id: nuevoPago._id
         });
 
@@ -110,25 +113,25 @@ router.post('/webhook', async (req, res) => {
         const { type, data } = req.body;
 
         if (type === 'payment') {
-            const payment = await mercadopago.payment.findById(data.id);
-            const externalReference = payment.body.external_reference;
+            const paymentResponse = await payment.get({ id: data.id });
+            const externalReference = paymentResponse.external_reference;
             
             if (externalReference) {
                 const pago = await Pago.findById(externalReference);
                 
                 if (pago) {
                     // Actualizar estado del pago
-                    pago.mercadoPagoId = payment.body.id;
-                    pago.metodoPago = payment.body.payment_method_id;
+                    pago.mercadoPagoId = paymentResponse.id;
+                    pago.metodoPago = paymentResponse.payment_method_id;
                     pago.detalles = {
-                        merchant_order_id: payment.body.order?.id,
-                        payment_id: payment.body.id,
-                        payment_type: payment.body.payment_type_id,
-                        status: payment.body.status,
-                        status_detail: payment.body.status_detail
+                        merchant_order_id: paymentResponse.order?.id,
+                        payment_id: paymentResponse.id,
+                        payment_type: paymentResponse.payment_type_id,
+                        status: paymentResponse.status,
+                        status_detail: paymentResponse.status_detail
                     };
 
-                    if (payment.body.status === 'approved') {
+                    if (paymentResponse.status === 'approved') {
                         pago.estado = 'aprobado';
                         pago.fechaPago = new Date();
                         
@@ -143,7 +146,7 @@ router.post('/webhook', async (req, res) => {
                             });
                             await clase.save();
                         }
-                    } else if (payment.body.status === 'rejected') {
+                    } else if (paymentResponse.status === 'rejected') {
                         pago.estado = 'rechazado';
                     }
 
