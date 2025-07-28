@@ -9,7 +9,9 @@ export const Register: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'student'
+    role: 'student',
+    telefono: '',
+    bio: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -35,7 +37,7 @@ export const Register: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await register(formData.name, formData.email, formData.password, formData.role);
+      await register(formData.name, formData.email, formData.password, formData.role, formData.telefono, formData.bio);
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al registrarse');
@@ -124,6 +126,36 @@ export const Register: React.FC = () => {
               <option value="student">Estudiante</option>
               <option value="teacher">Instructor</option>
             </select>
+          </div>
+
+          <div>
+            <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-2">
+              Teléfono (opcional)
+            </label>
+            <input
+              id="telefono"
+              name="telefono"
+              type="tel"
+              value={formData.telefono}
+              onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              placeholder="Tu número de teléfono"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
+              Biografía (opcional)
+            </label>
+            <textarea
+              id="bio"
+              name="bio"
+              value={formData.bio}
+              onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+              rows={3}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              placeholder="Cuéntanos un poco sobre ti..."
+            />
           </div>
 
           <div>
