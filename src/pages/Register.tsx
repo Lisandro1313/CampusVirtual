@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, User } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, User, Phone } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export const Register: React.FC = () => {
@@ -9,15 +9,13 @@ export const Register: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'student',
-    telefono: '',
-    bio: ''
+    phone: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +35,7 @@ export const Register: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await register(formData.name, formData.email, formData.password, formData.role, formData.telefono, formData.bio);
+      await signUp(formData.email, formData.password, formData.name, formData.phone);
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al registrarse');
@@ -59,10 +57,17 @@ export const Register: React.FC = () => {
             <span className="text-3xl font-bold text-white">E.S.FD</span>
           </Link>
           <h2 className="text-3xl font-bold text-white mb-2">
-            Crear Cuenta
+            Registro de Estudiantes
           </h2>
           <p className="text-blue-200">
             Únete a nuestra comunidad de formación docente
+          </p>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6">
+          <h3 className="text-white font-semibold mb-2 text-center">📚 Solo para Estudiantes</h3>
+          <p className="text-blue-200 text-sm text-center">
+            Este formulario es exclusivo para estudiantes. Los docentes son agregados por el administrador.
           </p>
         </div>
 
@@ -76,7 +81,7 @@ export const Register: React.FC = () => {
 
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              Nombre Completo
+              Nombre Completo *
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -95,7 +100,7 @@ export const Register: React.FC = () => {
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Correo Electrónico
+              Correo Electrónico *
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -113,54 +118,26 @@ export const Register: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-              Tipo de Cuenta
-            </label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-            >
-              <option value="student">Estudiante</option>
-              <option value="teacher">Instructor</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
               Teléfono (opcional)
             </label>
-            <input
-              id="telefono"
-              name="telefono"
-              type="tel"
-              value={formData.telefono}
-              onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              placeholder="Tu número de teléfono"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
-              Biografía (opcional)
-            </label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={formData.bio}
-              onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-              rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              placeholder="Cuéntanos un poco sobre ti..."
-            />
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                placeholder="Tu número de teléfono"
+              />
+            </div>
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Contraseña
+              Contraseña *
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -186,7 +163,7 @@ export const Register: React.FC = () => {
 
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Confirmar Contraseña
+              Confirmar Contraseña *
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -235,7 +212,7 @@ export const Register: React.FC = () => {
             disabled={isLoading}
             className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
+            {isLoading ? 'Creando cuenta...' : 'Registrarse como Estudiante'}
           </button>
 
           <div className="text-center">

@@ -4,12 +4,14 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.warn('Supabase environment variables not found. Using demo mode.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
-// Tipos para la base de datos
+// Database Types
 export interface Profile {
   id: string;
   name: string;
@@ -18,6 +20,7 @@ export interface Profile {
   avatar_url?: string;
   bio?: string;
   location?: string;
+  phone?: string;
   created_at: string;
   updated_at: string;
 }
@@ -30,6 +33,7 @@ export interface Course {
   instructor_id: string;
   category: string;
   level: 'beginner' | 'intermediate' | 'advanced';
+  price: number;
   image_url?: string;
   featured: boolean;
   tags: string[];
@@ -37,6 +41,7 @@ export interface Course {
   updated_at: string;
   instructor?: Profile;
   lessons?: Lesson[];
+  enrollments_count?: number;
 }
 
 export interface Lesson {
@@ -45,28 +50,24 @@ export interface Lesson {
   title: string;
   description?: string;
   video_url?: string;
+  file_url?: string;
+  content_type: 'video' | 'pdf' | 'link' | 'text';
   duration_minutes: number;
-  price: number;
   order_index: number;
-  content_type: 'video' | 'text' | 'quiz';
-  materials?: any[];
   is_free: boolean;
   created_at: string;
   updated_at: string;
-  course?: Course;
-  is_purchased?: boolean;
-  progress?: LessonProgress;
 }
 
-export interface LessonPurchase {
+export interface Enrollment {
   id: string;
   user_id: string;
-  lesson_id: string;
-  amount_paid: number;
-  payment_method: string;
-  stripe_payment_id?: string;
-  purchased_at: string;
-  lesson?: Lesson;
+  course_id: string;
+  enrolled_at: string;
+  progress: number;
+  completed: boolean;
+  payment_status: 'pending' | 'completed' | 'failed';
+  mercadopago_payment_id?: string;
 }
 
 export interface LessonProgress {
@@ -80,23 +81,15 @@ export interface LessonProgress {
   updated_at: string;
 }
 
-export interface Announcement {
-  id: string;
-  title: string;
-  content: string;
-  author_id: string;
-  published: boolean;
-  published_at?: string;
-  email_sent: boolean;
-  created_at: string;
-  updated_at: string;
-  author?: Profile;
-}
-
-export interface NotificationSubscription {
+export interface Payment {
   id: string;
   user_id: string;
-  email_announcements: boolean;
-  email_new_lessons: boolean;
+  course_id: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  mercadopago_payment_id?: string;
+  mercadopago_preference_id?: string;
   created_at: string;
+  updated_at: string;
 }

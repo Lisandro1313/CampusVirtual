@@ -2,65 +2,44 @@ import React, { useState } from 'react';
 import { Plus, X, Upload, Save, Eye, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { courseService } from '../services/courseService';
 
-interface Lesson {
-  id: string;
-  title: string;
-  description: string;
-  duration: string;
-  type: 'video' | 'text' | 'quiz';
-  videoUrl?: string;
-  content?: string;
-}
-
-interface CourseData {
-  title: string;
-  shortDescription: string;
-  description: string;
-  category: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  price: number;
-  originalPrice?: number;
-  duration: string;
-  tags: string[];
-  image: string;
-  lessons: Lesson[];
-}
+import { Course, Lesson } from '../lib/supabase';
 
 export const NewCourse: React.FC = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
-  const [courses, setCourses] = useLocalStorage('teacher-courses', []);
   
-  const [courseData, setCourseData] = useState<CourseData>({
+  const [courseData, setCourseData] = useState({
     title: '',
-    shortDescription: '',
+    short_description: '',
     description: '',
-    category: 'Tecnología',
+    category: 'Pedagogía',
     level: 'beginner',
     price: 0,
-    duration: '',
     tags: [],
-    image: 'https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
-    lessons: []
+    image_url: 'https://images.pexels.com/photos/8197530/pexels-photo-8197530.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
+    featured: false
   });
 
+  const [lessons, setLessons] = useState<Omit<Lesson, 'id' | 'course_id' | 'created_at' | 'updated_at'>[]>([]);
   const [newTag, setNewTag] = useState('');
-  const [newLesson, setNewLesson] = useState<Lesson>({
-    id: '',
+  const [newLesson, setNewLesson] = useState({
     title: '',
     description: '',
-    duration: '',
-    type: 'video',
-    videoUrl: ''
+    duration_minutes: 0,
+    content_type: 'video' as const,
+    video_url: '',
+    file_url: '',
+    order_index: 0,
+    is_free: false
   });
   const [showLessonForm, setShowLessonForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const categories = [
-    'Tecnología', 'Diseño', 'Marketing', 'Negocios', 'Arte', 'Idiomas', 
-    'Ciencias', 'Salud', 'Música', 'Fotografía'
+    'Pedagogía', 'Tecnología Educativa', 'Gestión Educativa', 'Didáctica', 
+    'Evaluación', 'Psicología Educativa', 'Metodología', 'Inclusión Educativa'
   ];
 
   const addTag = () => {
@@ -82,57 +61,54 @@ export const NewCourse: React.FC = () => {
 
   const addLesson = () => {
     if (newLesson.title.trim()) {
-      const lesson = {
+      setLessons(prev => [...prev, {
         ...newLesson,
-        id: Date.now().toString()
-      };
-      setCourseData(prev => ({
-        ...prev,
-        lessons: [...prev.lessons, lesson]
-      }));
+        order_index: prev.length
+      }]);
       setNewLesson({
-        id: '',
         title: '',
         description: '',
-        duration: '',
-        type: 'video',
-        videoUrl: ''
+        duration_minutes: 0,
+        content_type: 'video',
+        video_url: '',
+        file_url: '',
+        order_index: 0,
+        is_free: false
       });
       setShowLessonForm(false);
     }
   };
 
-  const removeLesson = (lessonId: string) => {
-    setCourseData(prev => ({
-      ...prev,
-      lessons: prev.lessons.filter(l => l.id !== lessonId)
-    }));
+  const removeLesson = (index: number) => {
+    setLessons(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate course creation
-    setTimeout(() => {
-      const newCourse = {
-        id: Date.now().toString(),
+    try {
+      // Create course
+      const newCourse = await courseService.createCourse({
         ...courseData,
-        instructor: auth.user?.name || 'Instructor',
-        instructorId: auth.user?.id || '1',
-        instructorAvatar: auth.user?.avatar || '',
-        students: 0,
-        rating: 0,
-        featured: false,
-        curriculum: courseData.lessons,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+        instructor_id: auth.profile?.id || 'teacher-1'
+      });
 
-      setCourses((prev: any[]) => [...prev, newCourse]);
+      // Create lessons
+      for (const lessonData of lessons) {
+        await courseService.createLesson({
+          ...lessonData,
+          course_id: newCourse.id
+        });
+      }
+
       setIsSubmitting(false);
       navigate('/dashboard');
-    }, 2000);
+    } catch (error) {
+      console.error('Error creating course:', error);
+      alert('Error al crear el curso. Intenta nuevamente.');
+      setIsSubmitting(false);
+    }
   };
 
   const handlePreview = () => {
@@ -196,8 +172,8 @@ export const NewCourse: React.FC = () => {
                 <input
                   type="text"
                   required
-                  value={courseData.shortDescription}
-                  onChange={(e) => setCourseData(prev => ({ ...prev, shortDescription: e.target.value }))}
+                  value={courseData.short_description}
+                  onChange={(e) => setCourseData(prev => ({ ...prev, short_description: e.target.value }))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Descripción breve que aparecerá en las tarjetas del curso"
                 />
@@ -257,25 +233,11 @@ export const NewCourse: React.FC = () => {
                   type="number"
                   required
                   min="0"
-                  step="0.01"
+                  step="1"
                   value={courseData.price}
                   onChange={(e) => setCourseData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="99.99"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Duración Estimada *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={courseData.duration}
-                  onChange={(e) => setCourseData(prev => ({ ...prev, duration: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Ej: 12 semanas"
+                  placeholder="15000"
                 />
               </div>
             </div>
@@ -338,8 +300,8 @@ export const NewCourse: React.FC = () => {
 
             {/* Lessons List */}
             <div className="space-y-4 mb-6">
-              {courseData.lessons.map((lesson, index) => (
-                <div key={lesson.id} className="border border-gray-200 rounded-lg p-4">
+              {lessons.map((lesson, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-1">
@@ -347,13 +309,13 @@ export const NewCourse: React.FC = () => {
                       </h3>
                       <p className="text-gray-600 text-sm mb-2">{lesson.description}</p>
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span>Tipo: {lesson.type === 'video' ? 'Video' : lesson.type === 'text' ? 'Texto' : 'Quiz'}</span>
-                        <span>Duración: {lesson.duration}</span>
+                        <span>Tipo: {lesson.content_type === 'video' ? 'Video' : lesson.content_type === 'pdf' ? 'PDF' : 'Enlace'}</span>
+                        <span>Duración: {lesson.duration_minutes} min</span>
                       </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => removeLesson(lesson.id)}
+                      onClick={() => removeLesson(index)}
                       className="text-red-600 hover:text-red-700 p-1"
                     >
                       <X className="h-4 w-4" />
@@ -399,43 +361,71 @@ export const NewCourse: React.FC = () => {
                       Tipo de Contenido
                     </label>
                     <select
-                      value={newLesson.type}
-                      onChange={(e) => setNewLesson(prev => ({ ...prev, type: e.target.value as any }))}
+                      value={newLesson.content_type}
+                      onChange={(e) => setNewLesson(prev => ({ ...prev, content_type: e.target.value as any }))}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="video">Video</option>
-                      <option value="text">Texto</option>
-                      <option value="quiz">Quiz</option>
+                      <option value="pdf">PDF</option>
+                      <option value="link">Enlace</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Duración
+                      Duración (minutos)
                     </label>
                     <input
-                      type="text"
-                      value={newLesson.duration}
-                      onChange={(e) => setNewLesson(prev => ({ ...prev, duration: e.target.value }))}
+                      type="number"
+                      min="1"
+                      value={newLesson.duration_minutes}
+                      onChange={(e) => setNewLesson(prev => ({ ...prev, duration_minutes: parseInt(e.target.value) || 0 }))}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Ej: 45 min"
+                      placeholder="45"
                     />
                   </div>
 
-                  {newLesson.type === 'video' && (
+                  {newLesson.content_type === 'video' && (
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         URL del Video
                       </label>
                       <input
                         type="url"
-                        value={newLesson.videoUrl}
-                        onChange={(e) => setNewLesson(prev => ({ ...prev, videoUrl: e.target.value }))}
+                        value={newLesson.video_url}
+                        onChange={(e) => setNewLesson(prev => ({ ...prev, video_url: e.target.value }))}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="https://youtube.com/embed/..."
                       />
                     </div>
                   )}
+
+                  {(newLesson.content_type === 'pdf' || newLesson.content_type === 'link') && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {newLesson.content_type === 'pdf' ? 'URL del PDF' : 'URL del Enlace'}
+                      </label>
+                      <input
+                        type="url"
+                        value={newLesson.file_url}
+                        onChange={(e) => setNewLesson(prev => ({ ...prev, file_url: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="https://..."
+                      />
+                    </div>
+                  )}
+
+                  <div className="md:col-span-2">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={newLesson.is_free}
+                        onChange={(e) => setNewLesson(prev => ({ ...prev, is_free: e.target.checked }))}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Lección gratuita (vista previa)</span>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="flex space-x-3 mt-4">
@@ -468,7 +458,7 @@ export const NewCourse: React.FC = () => {
             </Link>
             <button
               type="submit"
-              disabled={isSubmitting || courseData.lessons.length === 0}
+              disabled={isSubmitting || lessons.length === 0}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 disabled:transform-none flex items-center"
             >
               {isSubmitting ? (

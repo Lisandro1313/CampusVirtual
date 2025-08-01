@@ -1,46 +1,48 @@
-
 import React, { useState } from 'react';
-import { CreditCard, Loader, CheckCircle } from 'lucide-react';
-import { apiService } from '../../services/api';
+import { CreditCard, Loader, CheckCircle, ExternalLink } from 'lucide-react';
+import { mercadoPagoService } from '../../services/mercadoPagoService';
 
 interface MercadoPagoButtonProps {
-  claseId: string;
-  precio: number;
-  titulo: string;
+  courseId: string;
+  userId: string;
+  amount: number;
+  title: string;
+  description: string;
   onSuccess?: () => void;
   disabled?: boolean;
 }
 
 export const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({
-  claseId,
-  precio,
-  titulo,
+  courseId,
+  userId,
+  amount,
+  title,
+  description,
   onSuccess,
   disabled = false
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
 
-  const handlePago = async () => {
+  const handlePayment = async () => {
     if (disabled) return;
     
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await apiService.crearPreferenciaPago(claseId);
+      const preference = await mercadoPagoService.createPreference({
+        courseId,
+        userId,
+        amount,
+        title,
+        description
+      });
+
+      await mercadoPagoService.processPayment(preference.id);
       
-      // Redirigir a MercadoPago
-      if (response.init_point) {
-        // En producción usarías init_point, en desarrollo sandbox_init_point
-        const redirectUrl = import.meta.env.DEV 
-          ? response.sandbox_init_point 
-          : response.init_point;
-        
-        window.location.href = redirectUrl;
-      } else {
-        throw new Error('No se pudo crear la preferencia de pago');
+      if (onSuccess) {
+        onSuccess();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al procesar el pago');
@@ -48,15 +50,6 @@ export const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({
       setIsLoading(false);
     }
   };
-
-  if (success) {
-    return (
-      <div className="flex items-center justify-center bg-green-50 text-green-700 py-3 px-4 rounded-lg">
-        <CheckCircle className="h-5 w-5 mr-2" />
-        <span>Pago procesado exitosamente</span>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-3">
@@ -67,14 +60,14 @@ export const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({
       )}
       
       <button
-        onClick={handlePago}
+        onClick={handlePayment}
         disabled={isLoading || disabled}
         className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-300 flex items-center justify-center ${
           disabled 
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : isLoading
             ? 'bg-blue-400 text-white cursor-not-allowed'
-            : 'bg-blue-600 hover:bg-blue-700 text-white hover:scale-105'
+            : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white hover:scale-105'
         }`}
       >
         {isLoading ? (
@@ -85,13 +78,14 @@ export const MercadoPagoButton: React.FC<MercadoPagoButtonProps> = ({
         ) : (
           <>
             <CreditCard className="h-5 w-5 mr-2" />
-            Pagar ${precio} con MercadoPago
+            Pagar ${amount.toLocaleString()} con MercadoPago
           </>
         )}
       </button>
       
       <div className="text-center">
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 flex items-center justify-center">
+          <ExternalLink className="h-3 w-3 mr-1" />
           Pago seguro procesado por MercadoPago
         </p>
       </div>

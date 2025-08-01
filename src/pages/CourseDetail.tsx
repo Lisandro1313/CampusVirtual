@@ -4,10 +4,12 @@ import {
   ArrowLeft, Star, Clock, Users, Play, CheckCircle, Globe, 
   Award, Download, Heart, Share2, ShoppingCart 
 } from 'lucide-react';
-import { allCourses } from '../data/mockData';
+import { courseService } from '../services/courseService';
+import { mercadoPagoService } from '../services/mercadoPagoService';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { Course } from '../lib/supabase';
 
 export const CourseDetail: React.FC = () => {
   const { courseId } = useParams();
@@ -15,8 +17,58 @@ export const CourseDetail: React.FC = () => {
   const { auth } = useAuth();
   const [favorites, setFavorites] = useLocalStorage<string[]>('course-favorites', []);
   const [activeTab, setActiveTab] = useState('overview');
+  const [course, setCourse] = useState<Course | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [enrolling, setEnrolling] = useState(false);
 
-  const course = allCourses.find(c => c.id === courseId);
+  React.useEffect(() => {
+    if (courseId) {
+      loadCourse();
+    }
+  }, [courseId]);
+
+  const loadCourse = async () => {
+    try {
+      const courseData = await courseService.getCourse(courseId!);
+      setCourse(courseData);
+    } catch (error) {
+      console.error('Error loading course:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEnrollment = async () => {
+    if (!auth.isAuthenticated || !course) return;
+    
+    setEnrolling(true);
+    try {
+      // Create MercadoPago preference
+      const preference = await mercadoPagoService.createPreference({
+        courseId: course.id,
+        userId: auth.user?.id || auth.profile?.id || '',
+        amount: course.price,
+        title: course.title,
+        description: course.short_description || course.description
+      });
+
+      // Process payment
+      await mercadoPagoService.processPayment(preference.id);
+    } catch (error) {
+      console.error('Error processing enrollment:', error);
+      alert('Error al procesar la inscripción. Intenta nuevamente.');
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   if (!course) {
     return (
@@ -80,27 +132,27 @@ export const CourseDetail: React.FC = () => {
               <div className="flex items-center space-x-6 mb-6">
                 <div className="flex items-center space-x-1">
                   <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                  <span className="font-semibold">{course.rating}</span>
-                  <span className="text-blue-200">({course.students} estudiantes)</span>
+                  <span className="font-semibold">4.8</span>
+                  <span className="text-blue-200">({course.enrollments_count || 0} estudiantes)</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Clock className="h-5 w-5 text-blue-200" />
-                  <span>{course.duration}</span>
+                  <span>8 semanas</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Play className="h-5 w-5 text-blue-200" />
-                  <span>{course.lessons} lecciones</span>
+                  <span>{course.lessons?.length || 0} lecciones</span>
                 </div>
               </div>
 
               <div className="flex items-center space-x-4 mb-6">
                 <img
-                  src={course.instructorAvatar}
-                  alt={course.instructor}
+                  src={course.instructor?.avatar_url || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
+                  alt={course.instructor?.name || 'Instructor'}
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
-                  <p className="font-semibold">Creado por {course.instructor}</p>
+                  <p className="font-semibold">Creado por {course.instructor?.name || 'Norma Skuletich'}</p>
                   <p className="text-blue-200 text-sm">Instructor experto</p>
                 </div>
               </div>
@@ -136,13 +188,8 @@ export const CourseDetail: React.FC = () => {
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      {course.originalPrice && (
-                        <span className="text-gray-400 text-lg line-through mr-2">
-                          ${course.originalPrice}
-                        </span>
-                      )}
                       <span className="text-3xl font-bold text-blue-600">
-                        ${course.price}
+                        ${course.price.toLocaleString()}
                       </span>
                     </div>
                     <button
@@ -155,23 +202,27 @@ export const CourseDetail: React.FC = () => {
 
                   <div className="space-y-3 mb-6">
                     <button
-                      onClick={() => addToCart(course.id)}
-                      disabled={inCart}
+                      onClick={handleEnrollment}
+                      disabled={enrolling || !auth.isAuthenticated}
                       className={`w-full py-3 px-4 rounded-xl font-semibold transition-all ${
-                        inCart
-                          ? 'bg-green-100 text-green-700 cursor-not-allowed'
+                        !auth.isAuthenticated
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : enrolling
+                          ? 'bg-blue-400 text-white cursor-not-allowed'
                           : 'bg-blue-600 hover:bg-blue-700 text-white transform hover:scale-105'
                       }`}
                     >
-                      {inCart ? (
+                      {!auth.isAuthenticated ? (
+                        'Inicia sesión para inscribirte'
+                      ) : enrolling ? (
                         <>
-                          <CheckCircle className="h-5 w-5 inline mr-2" />
-                          En el carrito
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white inline mr-2"></div>
+                          Procesando...
                         </>
                       ) : (
                         <>
                           <ShoppingCart className="h-5 w-5 inline mr-2" />
-                          Agregar al carrito
+                          Inscribirse al Curso
                         </>
                       )}
                     </button>
@@ -278,7 +329,7 @@ export const CourseDetail: React.FC = () => {
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-6">Contenido del curso</h3>
                 <div className="space-y-4">
-                  {course.curriculum.map((lesson, index) => (
+                  {(course.lessons || []).map((lesson, index) => (
                     <div key={lesson.id} className="bg-white rounded-xl p-6 border border-gray-200">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
@@ -291,8 +342,8 @@ export const CourseDetail: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex items-center space-x-4">
-                          <span className="text-sm text-gray-500">{lesson.duration}</span>
-                          {lesson.type === 'video' ? (
+                          <span className="text-sm text-gray-500">{lesson.duration_minutes} min</span>
+                          {lesson.content_type === 'video' ? (
                             <Play className="h-4 w-4 text-gray-400" />
                           ) : (
                             <CheckCircle className="h-4 w-4 text-gray-400" />
@@ -311,16 +362,14 @@ export const CourseDetail: React.FC = () => {
                 <div className="bg-white rounded-xl p-6 border border-gray-200">
                   <div className="flex items-start space-x-6">
                     <img
-                      src={course.instructorAvatar}
-                      alt={course.instructor}
+                      src={course.instructor?.avatar_url || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
+                      alt={course.instructor?.name || 'Instructor'}
                       className="w-24 h-24 rounded-full object-cover"
                     />
                     <div className="flex-1">
-                      <h4 className="text-xl font-semibold text-gray-900 mb-2">{course.instructor}</h4>
+                      <h4 className="text-xl font-semibold text-gray-900 mb-2">{course.instructor?.name || 'Norma Skuletich'}</h4>
                       <p className="text-gray-600 mb-4">
-                        Experto en {course.category} con más de 8 años de experiencia en la industria. 
-                        Ha trabajado con empresas líderes y ha ayudado a miles de estudiantes a 
-                        alcanzar sus objetivos profesionales.
+                        {course.instructor?.bio || 'Magister en Educación con más de 15 años de experiencia en formación docente y gestión educativa.'}
                       </p>
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -330,14 +379,14 @@ export const CourseDetail: React.FC = () => {
                         </div>
                         <div>
                           <div className="text-2xl font-bold text-blue-600">15,420</div>
-                          <div className="text-sm text-gray-600">Estudiantes</div>
+                          <div className="text-sm text-gray-600">Docentes formados</div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-blue-600">12</div>
+                          <div className="text-2xl font-bold text-blue-600">25</div>
                           <div className="text-sm text-gray-600">Cursos</div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-blue-600">8</div>
+                          <div className="text-2xl font-bold text-blue-600">15</div>
                           <div className="text-sm text-gray-600">Años exp.</div>
                         </div>
                       </div>
@@ -406,34 +455,10 @@ export const CourseDetail: React.FC = () => {
             <div className="bg-white rounded-xl p-6 border border-gray-200 sticky top-8">
               <h4 className="font-semibold text-gray-900 mb-4">Cursos relacionados</h4>
               <div className="space-y-4">
-                {allCourses
-                  .filter(c => c.id !== course.id && c.category === course.category)
-                  .slice(0, 3)
-                  .map((relatedCourse) => (
-                    <Link
-                      key={relatedCourse.id}
-                      to={`/courses/${relatedCourse.id}`}
-                      className="block hover:bg-gray-50 rounded-lg p-3 transition-colors"
-                    >
-                      <div className="flex space-x-3">
-                        <img
-                          src={relatedCourse.image}
-                          alt={relatedCourse.title}
-                          className="w-16 h-16 rounded-lg object-cover"
-                        />
-                        <div className="flex-1">
-                          <h5 className="font-medium text-gray-900 text-sm line-clamp-2">
-                            {relatedCourse.title}
-                          </h5>
-                          <p className="text-sm text-gray-600">{relatedCourse.instructor}</p>
-                          <div className="flex items-center space-x-1 mt-1">
-                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                            <span className="text-xs text-gray-600">{relatedCourse.rating}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                {/* Related courses would be loaded here */}
+                <p className="text-sm text-gray-500 text-center py-4">
+                  Cursos relacionados se mostrarán aquí
+                </p>
               </div>
             </div>
           </div>

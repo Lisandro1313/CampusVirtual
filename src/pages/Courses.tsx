@@ -1,23 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, Star, Clock, Users, ArrowRight, ShoppingCart, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useSearch } from '../hooks/useSearch';
 import { useCart } from '../hooks/useCart';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { courseService } from '../services/courseService';
+import { Course } from '../lib/supabase';
 
 export const Courses: React.FC = () => {
-  const { 
-    searchTerm, 
-    setSearchTerm, 
-    filters, 
-    updateFilter, 
-    resetFilters, 
-    filteredCourses,
-    addToSearchHistory 
-  } = useSearch();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
   const { addToCart, isInCart } = useCart();
   const [favorites, setFavorites] = useLocalStorage<string[]>('course-favorites', []);
   const [sortBy, setSortBy] = useState('featured');
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  const loadCourses = async () => {
+    try {
+      const coursesData = await courseService.getCourses();
+      setCourses(coursesData);
+    } catch (error) {
+      console.error('Error loading courses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Get URL search params
   React.useEffect(() => {
@@ -26,9 +38,9 @@ export const Courses: React.FC = () => {
     if (searchParam) {
       setSearchTerm(searchParam);
     }
-  }, [setSearchTerm]);
+  }, []);
 
-  const categories = ['all', 'Tecnología', 'Diseño', 'Marketing', 'Arte', 'Idiomas'];
+  const categories = ['all', 'Pedagogía', 'Tecnología Educativa', 'Gestión Educativa', 'Didáctica'];
   const levels = ['all', 'beginner', 'intermediate', 'advanced'];
   const sortOptions = [
     { value: 'featured', label: 'Destacados' },
@@ -41,10 +53,36 @@ export const Courses: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      addToSearchHistory(searchTerm);
-    }
+    // Search is handled by filteredCourses
   };
+
+  const filteredCourses = React.useMemo(() => {
+    let results = courses;
+
+    // Text search
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      results = results.filter(course =>
+        course.title.toLowerCase().includes(term) ||
+        course.description.toLowerCase().includes(term) ||
+        course.short_description?.toLowerCase().includes(term) ||
+        course.category.toLowerCase().includes(term) ||
+        course.tags.some(tag => tag.toLowerCase().includes(term))
+      );
+    }
+
+    // Category filter
+    if (selectedCategory !== 'all') {
+      results = results.filter(course => course.category === selectedCategory);
+    }
+
+    // Level filter
+    if (selectedLevel !== 'all') {
+      results = results.filter(course => course.level === selectedLevel);
+    }
+
+    return results;
+  }, [courses, searchTerm, selectedCategory, selectedLevel]);
 
   const toggleFavorite = (courseId: string) => {
     setFavorites(prev => 
@@ -71,6 +109,12 @@ export const Courses: React.FC = () => {
         return sorted.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     }
   }, [filteredCourses, sortBy]);
+
+  if (loading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -104,8 +148,8 @@ export const Courses: React.FC = () => {
 
             {/* Category Filter */}
             <select
-              value={filters.category}
-              onChange={(e) => updateFilter('category', e.target.value)}
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {categories.map(category => (
@@ -117,8 +161,8 @@ export const Courses: React.FC = () => {
 
             {/* Level Filter */}
             <select
-              value={filters.level}
-              onChange={(e) => updateFilter('level', e.target.value)}
+              value={selectedLevel}
+              onChange={(e) => setSelectedLevel(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {levels.map(level => (
@@ -144,48 +188,18 @@ export const Courses: React.FC = () => {
             </select>
           </div>
 
-          {/* Advanced Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Price Range */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Rango de Precio: ${filters.priceRange[0]} - ${filters.priceRange[1]}
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="200"
-                value={filters.priceRange[1]}
-                onChange={(e) => updateFilter('priceRange', [filters.priceRange[0], parseInt(e.target.value)])}
-                className="w-full"
-              />
-            </div>
-
-            {/* Rating Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Calificación Mínima
-              </label>
-              <select
-                value={filters.rating}
-                onChange={(e) => updateFilter('rating', parseFloat(e.target.value))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value={0}>Todas</option>
-                <option value={4}>4+ estrellas</option>
-                <option value={4.5}>4.5+ estrellas</option>
-              </select>
-            </div>
-
-            {/* Reset Filters */}
-            <div className="flex items-end">
-              <button
-                onClick={resetFilters}
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                Limpiar Filtros
-              </button>
-            </div>
+          {/* Reset Filters */}
+          <div className="flex justify-end">
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('all');
+                setSelectedLevel('all');
+              }}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              Limpiar Filtros
+            </button>
           </div>
         </div>
 
@@ -229,11 +243,11 @@ export const Courses: React.FC = () => {
               <div className="p-6">
                 <div className="flex items-center space-x-2 mb-3">
                   <img
-                    src={course.instructorAvatar}
-                    alt={course.instructor}
+                    src={course.instructor?.avatar_url || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
+                    alt={course.instructor?.name || 'Instructor'}
                     className="w-8 h-8 rounded-full object-cover"
                   />
-                  <span className="text-gray-600 text-sm">{course.instructor}</span>
+                  <span className="text-gray-600 text-sm">{course.instructor?.name || 'Norma Skuletich'}</span>
                 </div>
 
                 <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
@@ -247,21 +261,21 @@ export const Courses: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-1">
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="text-sm font-semibold">{course.rating}</span>
+                    <span className="text-sm font-semibold">4.8</span>
                   </div>
                   <div className="flex items-center text-gray-500 text-sm">
                     <Clock className="h-4 w-4 mr-1" />
-                    {course.duration}
+                    8 semanas
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center text-gray-500 text-sm">
                     <Users className="h-4 w-4 mr-1" />
-                    {course.students.toLocaleString()}
+                    {course.enrollments_count || 0}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {course.lessons} lecciones
+                    {course.lessons?.length || 0} lecciones
                   </div>
                 </div>
 
@@ -273,7 +287,7 @@ export const Courses: React.FC = () => {
                       </span>
                     )}
                     <span className="text-2xl font-bold text-blue-600">
-                      ${course.price}
+                      ${course.price.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex space-x-2">
@@ -314,7 +328,11 @@ export const Courses: React.FC = () => {
               Intenta ajustar tus filtros de búsqueda
             </p>
             <button
-              onClick={resetFilters}
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('all');
+                setSelectedLevel('all');
+              }}
               className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
               Limpiar Filtros

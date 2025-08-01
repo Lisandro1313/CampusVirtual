@@ -9,7 +9,7 @@ export const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,7 +18,7 @@ export const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await signIn(email, password);
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
@@ -28,9 +28,18 @@ export const Login: React.FC = () => {
   };
 
   const demoUsers = [
-    { email: 'estudiante@campus.com', role: 'Estudiante', password: 'password123' },
-    { email: 'docente@campus.com', role: 'Docente', password: 'password123' },
-    { email: 'admin@campus.com', role: 'Administrador', password: 'password123' },
+    { 
+      email: 'admin@esfd.com', 
+      role: 'Administrador', 
+      password: 'admin123',
+      description: 'Puede gestionar todo el sistema'
+    },
+    { 
+      email: 'norma@esfd.com', 
+      role: 'Norma Skuletich (Docente)', 
+      password: 'norma123',
+      description: 'Directora y Magister en Educación'
+    },
   ];
 
   return (
@@ -70,11 +79,17 @@ export const Login: React.FC = () => {
                   <div>
                     <p className="text-white font-medium">{user.role}</p>
                     <p className="text-blue-200 text-sm">{user.email}</p>
+                    <p className="text-blue-300 text-xs">{user.description}</p>
                   </div>
                   <span className="text-blue-300 text-xs">Click para usar</span>
                 </div>
               </button>
             ))}
+          </div>
+          <div className="mt-3 p-2 bg-blue-600/20 rounded-lg">
+            <p className="text-blue-200 text-xs text-center">
+              💡 Los estudiantes se registran usando el formulario de registro
+            </p>
           </div>
         </div>
 
@@ -131,26 +146,6 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                Recordarme
-              </label>
-            </div>
-            <Link
-              to="/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-500 transition-colors"
-            >
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </div>
-
           <button
             type="submit"
             disabled={isLoading}
@@ -161,7 +156,7 @@ export const Login: React.FC = () => {
 
           <div className="text-center">
             <p className="text-gray-600">
-              ¿No tienes una cuenta?{' '}
+              ¿Eres estudiante y no tienes cuenta?{' '}
               <Link
                 to="/register"
                 className="text-blue-600 hover:text-blue-500 font-semibold transition-colors"

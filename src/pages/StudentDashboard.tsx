@@ -1,28 +1,46 @@
 import React, { useState } from 'react';
 import { BookOpen, Clock, Award, TrendingUp, Play, CheckCircle, User, Settings, BarChart3, Megaphone } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { mockEnrollments, allCourses, mockProgress } from '../data/mockData';
+import { courseService } from '../services/courseService';
+import { Enrollment, Course } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 
 export const StudentDashboard: React.FC = () => {
   const { auth } = useAuth();
   const [activeTab, setActiveTab] = useState('courses');
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Get enrolled courses
-  const enrolledCourses = mockEnrollments
-    .filter(enrollment => enrollment.userId === auth.user?.id)
-    .map(enrollment => {
-      const course = allCourses.find(c => c.id === enrollment.courseId);
-      return { ...enrollment, course };
-    })
-    .filter(item => item.course);
+  React.useEffect(() => {
+    if (auth.profile?.id) {
+      loadEnrollments();
+    }
+  }, [auth.profile?.id]);
+
+  const loadEnrollments = async () => {
+    try {
+      const userEnrollments = await courseService.getUserEnrollments(auth.profile?.id || '');
+      setEnrollments(userEnrollments);
+    } catch (error) {
+      console.error('Error loading enrollments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Calculate stats
-  const totalCourses = enrolledCourses.length;
-  const completedCourses = enrolledCourses.filter(e => e.completed).length;
-  const averageProgress = enrolledCourses.reduce((acc, e) => acc + e.progress, 0) / totalCourses || 0;
-  const totalHours = enrolledCourses.reduce((acc, e) => acc + (e.course?.lessons || 0), 0) * 0.75; // Estimate 45min per lesson
+  const totalCourses = enrollments.length;
+  const completedCourses = enrollments.filter(e => e.completed).length;
+  const averageProgress = enrollments.reduce((acc, e) => acc + e.progress, 0) / totalCourses || 0;
+  const totalHours = Math.round(averageProgress * totalCourses * 8 * 0.75); // Estimate
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
   const tabs = [
     { id: 'courses', label: 'Mis Cursos', icon: BookOpen },
     { id: 'progress', label: 'Progreso', icon: TrendingUp },
@@ -131,19 +149,19 @@ export const StudentDashboard: React.FC = () => {
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Mis Cursos</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {enrolledCourses.map((enrollment) => (
+                  {enrollments.map((enrollment) => (
                     <div key={enrollment.id} className="bg-gray-50 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
                       <img
-                        src={enrollment.course?.image}
-                        alt={enrollment.course?.title}
+                        src={(enrollment as any).course?.image_url || 'https://images.pexels.com/photos/8197530/pexels-photo-8197530.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2'}
+                        alt={(enrollment as any).course?.title}
                         className="w-full h-40 object-cover"
                       />
                       <div className="p-6">
                         <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                          {enrollment.course?.title}
+                          {(enrollment as any).course?.title}
                         </h3>
                         <p className="text-sm text-gray-600 mb-4">
-                          Por {enrollment.course?.instructor}
+                          Por Norma Skuletich
                         </p>
                         
                         <div className="mb-4">
@@ -160,7 +178,7 @@ export const StudentDashboard: React.FC = () => {
                         </div>
 
                         <Link
-                          to={`/course/${enrollment.courseId}/learn`}
+                          to={`/course/${enrollment.course_id}/learn`}
                           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
                         >
                           <Play className="h-4 w-4 mr-2" />
@@ -171,7 +189,7 @@ export const StudentDashboard: React.FC = () => {
                   ))}
                 </div>
 
-                {enrolledCourses.length === 0 && (
+                {enrollments.length === 0 && (
                   <div className="text-center py-12">
                     <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -195,11 +213,11 @@ export const StudentDashboard: React.FC = () => {
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Progreso Detallado</h2>
                 <div className="space-y-6">
-                  {enrolledCourses.map((enrollment) => (
+                  {enrollments.map((enrollment) => (
                     <div key={enrollment.id} className="bg-gray-50 rounded-xl p-6">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-semibold text-gray-900">
-                          {enrollment.course?.title}
+                          {(enrollment as any).course?.title}
                         </h3>
                         <span className="text-sm font-medium text-blue-600">
                           {enrollment.progress}% completado
@@ -216,12 +234,12 @@ export const StudentDashboard: React.FC = () => {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                           <p className="text-gray-600">Lecciones</p>
-                          <p className="font-semibold">{enrollment.course?.lessons}</p>
+                          <p className="font-semibold">{(enrollment as any).course?.lessons?.length || 0}</p>
                         </div>
                         <div>
                           <p className="text-gray-600">Completadas</p>
                           <p className="font-semibold">
-                            {Math.round((enrollment.progress / 100) * (enrollment.course?.lessons || 0))}
+                            {Math.round((enrollment.progress / 100) * ((enrollment as any).course?.lessons?.length || 0))}
                           </p>
                         </div>
                         <div>
@@ -233,7 +251,7 @@ export const StudentDashboard: React.FC = () => {
                         <div>
                           <p className="text-gray-600">Inscrito</p>
                           <p className="font-semibold">
-                            {new Date(enrollment.enrolledAt).toLocaleDateString()}
+                            {new Date(enrollment.enrolled_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
