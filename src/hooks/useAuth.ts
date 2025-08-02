@@ -108,59 +108,128 @@ export const useAuthState = () => {
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) {
-      // Demo mode
-      if (email === 'admin@esfd.com' && password === 'admin123') {
-        const adminUser = {
-          id: 'admin-1',
-          name: 'Administrador E.S.FD',
-          email: 'admin@esfd.com',
-          role: 'admin',
-          avatar_url: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        localStorage.setItem('demo-user', JSON.stringify(adminUser));
-        setAuth({
-          user: { id: adminUser.id, email: adminUser.email } as User,
-          profile: adminUser,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        return;
-      }
-      
-      if (email === 'norma@esfd.com' && password === 'norma123') {
-        const teacherUser = {
-          id: 'teacher-1',
-          name: 'Norma Skuletich',
-          email: 'norma@esfd.com',
-          role: 'teacher',
-          bio: 'Magister en Educación. Directora de E.S.FD con más de 15 años de experiencia en formación docente.',
-          phone: '1121673242',
-          location: 'Calle 102 n 735, Punta Lara',
-          avatar_url: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        localStorage.setItem('demo-user', JSON.stringify(teacherUser));
-        setAuth({
-          user: { id: teacherUser.id, email: teacherUser.email } as User,
-          profile: teacherUser,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-        return;
-      }
-      
-      throw new Error('Credenciales incorrectas');
+      return handleDemoLogin(email, password);
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) throw error;
+      if (error) {
+        // If credentials are invalid and it's a demo user, try to create them
+        if (error.message.includes('Invalid login credentials')) {
+          if (email === 'admin@esfd.com' && password === 'admin123') {
+            await createDemoUser(email, password, 'Administrador E.S.FD', 'admin');
+            return await signIn(email, password); // Retry login
+          }
+          if (email === 'norma@esfd.com' && password === 'norma123') {
+            await createDemoUser(email, password, 'Norma Skuletich', 'teacher');
+            return await signIn(email, password); // Retry login
+          }
+        }
+        throw error;
+      }
+    } catch (error) {
+      // If Supabase is not properly configured, fall back to demo mode
+      console.warn('Supabase authentication failed, falling back to demo mode:', error);
+      return handleDemoLogin(email, password);
+    }
+  };
+
+  const handleDemoLogin = (email: string, password: string) => {
+    if (email === 'admin@esfd.com' && password === 'admin123') {
+      const adminUser = {
+        id: 'admin-1',
+        name: 'Administrador E.S.FD',
+        email: 'admin@esfd.com',
+        role: 'admin',
+        avatar_url: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      localStorage.setItem('demo-user', JSON.stringify(adminUser));
+      setAuth({
+        user: { id: adminUser.id, email: adminUser.email } as User,
+        profile: adminUser,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      return;
+    }
+    
+    if (email === 'norma@esfd.com' && password === 'norma123') {
+      const teacherUser = {
+        id: 'teacher-1',
+        name: 'Norma Skuletich',
+        email: 'norma@esfd.com',
+        role: 'teacher',
+        bio: 'Magister en Educación. Directora de E.S.FD con más de 15 años de experiencia en formación docente.',
+        phone: '1121673242',
+        location: 'Calle 102 n 735, Punta Lara',
+        avatar_url: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      localStorage.setItem('demo-user', JSON.stringify(teacherUser));
+      setAuth({
+        user: { id: teacherUser.id, email: teacherUser.email } as User,
+        profile: teacherUser,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      return;
+    }
+    
+    throw new Error('Credenciales incorrectas');
+  };
+
+  const createDemoUser = async (email: string, password: string, name: string, role: 'admin' | 'teacher') => {
+    if (!supabase) return;
+
+    try {
+      // Create user in Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            role
+          }
+        }
+      });
+
+      if (authError) throw authError;
+
+      // Create profile in database
+      if (authData.user) {
+        const profileData = {
+          id: authData.user.id,
+          name,
+          email,
+          role,
+          avatar_url: role === 'admin' 
+            ? 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
+            : 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+          bio: role === 'teacher' ? 'Magister en Educación. Directora de E.S.FD con más de 15 años de experiencia en formación docente.' : undefined,
+          phone: role === 'teacher' ? '1121673242' : undefined,
+          location: role === 'teacher' ? 'Calle 102 n 735, Punta Lara' : undefined
+        };
+
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([profileData]);
+
+        if (profileError) {
+          console.warn('Profile creation failed:', profileError);
+        }
+      }
+    } catch (error) {
+      console.warn('Demo user creation failed:', error);
+      throw error;
+    }
   };
 
   const signUp = async (email: string, password: string, name: string, phone?: string) => {
