@@ -1,4 +1,5 @@
 import type { Course } from '../lib/supabase';
+import type { LessonProgress } from '../lib/supabase';
 
 // Mock data for demo mode
 export const allCourses: Course[] = [
@@ -136,3 +137,5 @@ export const mockAnnouncements = [
     created_at: '2024-01-10T00:00:00.000Z'
   }
 ];
+
+export const mockProgress: LessonProgress[] = [];
