@@ -176,9 +176,6 @@ export const useAuthState = () => {
         
         // Get user email for fallback
         const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user?.email) {
-          console.log('📧 User email:', user.email);
           
           const { data: profileByEmail, error: emailError } = await supabase
             .from('profiles')
