@@ -159,6 +159,8 @@ export const useAuthState = () => {
         if (data && !error) {
           console.log('✅ Profile found by ID:', data.name, data.role);
           return data;
+        }
+      }
       // Create a manual timeout for the query
       const queryPromise = (async () => {
         console.log('⏳ Attempting direct profile query...');
