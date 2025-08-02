@@ -7,7 +7,7 @@ import { useSearch } from '../../hooks/useSearch';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { auth, logout } = useAuth();
+  const { auth, signOut } = useAuth();
   const { getItemCount } = useCart();
   const { searchTerm, setSearchTerm, addToSearchHistory } = useSearch();
 
@@ -101,7 +101,7 @@ export const Header: React.FC = () => {
                     </Link>
                     <hr className="my-1" />
                     <button
-                      onClick={logout}
+                      onClick={signOut}
                       className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
                     >
                       Cerrar Sesión
