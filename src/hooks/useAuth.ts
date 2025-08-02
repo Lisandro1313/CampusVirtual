@@ -147,61 +147,74 @@ export const useAuthState = () => {
     try {
       console.log('📋 Fetching profile for user:', userId);
       
-      // Simple direct query without timeout wrapper
-      console.log('⏳ Starting profile query...');
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
-      console.log('🔍 Profile query completed:', { 
-        hasData: !!data, 
-        error: error?.message,
-        errorCode: error?.code 
-      });
-      
-      if (error) {
-        console.error('❌ Error fetching profile:', error.message, error.code);
+      // Try direct query first
+      console.log('⏳ Attempting direct profile query...');
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
         
-        // If profile not found, try to find by email
-        if (error.code === 'PGRST116' || error.message?.includes('No rows')) {
-          console.log('🔍 Profile not found by ID, trying to find by email...');
-          
-          // Get user email from auth
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user?.email) {
-            console.log('📧 Searching for profile with email:', user.email);
+        if (data && !error) {
+          console.log('✅ Profile found by ID:', data.name, data.role);
+          return data;
+        }
+        
+        console.log('❌ Profile not found by ID, error:', error?.message);
+      } catch (queryError) {
+        console.log('💥 Direct query failed:', queryError);
+      }
+      
+      // Fallback: Get user email and search by email
+      console.log('🔄 Trying fallback: search by email...');
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user?.email) {
+        console.log('📧 User email:', user.email);
+        
+        try {
+          const { data: profileByEmail, error: emailError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', user.email)
+            .single();
             
-            const { data: profileByEmail, error: emailError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('email', user.email)
-              .single();
-              
-            if (profileByEmail && !emailError) {
-              console.log('✅ Found profile by email:', profileByEmail);
-              return profileByEmail;
-            } else {
-              console.log('❌ No profile found by email either:', emailError?.message);
-            }
+          if (profileByEmail && !emailError) {
+            console.log('✅ Found profile by email:', profileByEmail.name, profileByEmail.role);
+            return profileByEmail;
+          }
+          
+          console.log('❌ No profile found by email:', emailError?.message);
+        } catch (emailQueryError) {
+          console.log('💥 Email query failed:', emailQueryError);
+        }
+      }
+      
+      // Last resort: List all profiles and find manually
+      console.log('🔄 Last resort: listing all profiles...');
+      try {
+        const { data: allProfiles } = await supabase
+          .from('profiles')
+          .select('id, email, name, role')
+          .limit(10);
+        
+        console.log('📊 Found profiles:', allProfiles?.map(p => ({ email: p.email, name: p.name, role: p.role })));
+        
+        if (user?.email && allProfiles) {
+          const matchingProfile = allProfiles.find(p => p.email === user.email);
+          if (matchingProfile) {
+            console.log('🎯 Found matching profile manually:', matchingProfile);
+            return matchingProfile as Profile;
           }
         }
-        return null;
+      } catch (listError) {
+        console.log('💥 List profiles failed:', listError);
       }
       
-      if (!data) {
-        console.log('🚨 No profile data returned from query');
-        return null;
-      }
+      console.log('❌ All profile fetch attempts failed');
+      return null;
       
-      console.log('✅ Profile fetched successfully:', {
-        name: data.name,
-        role: data.role,
-        email: data.email,
-        id: data.id
-      });
-      return data;
     } catch (error) {
       console.error('💥 Unexpected error in fetchProfile:', error);
       return null;
