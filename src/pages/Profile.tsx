@@ -93,59 +93,6 @@ export const Profile: React.FC = () => {
     certificates: 0,
     currentStreak: 0
   };
-      name: editForm.name,
-      bio: editForm.bio,
-      location: editForm.location
-    });
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setEditForm(profile);
-    setIsEditing(false);
-  };
-
-  const addSkill = () => {
-    if (newSkill.trim() && !editForm.skills.includes(newSkill.trim())) {
-      setEditForm(prev => ({
-        ...prev,
-        skills: [...prev.skills, newSkill.trim()]
-      }));
-      setNewSkill('');
-    }
-  };
-
-  const removeSkill = (skill: string) => {
-    setEditForm(prev => ({
-      ...prev,
-      skills: prev.skills.filter(s => s !== skill)
-    }));
-  };
-
-  const addInterest = () => {
-    if (newInterest.trim() && !editForm.interests.includes(newInterest.trim())) {
-      setEditForm(prev => ({
-        ...prev,
-        interests: [...prev.interests, newInterest.trim()]
-      }));
-      setNewInterest('');
-    }
-  };
-
-  const removeInterest = (interest: string) => {
-    setEditForm(prev => ({
-      ...prev,
-      interests: prev.interests.filter(i => i !== interest)
-    }));
-  };
-
-  // Mock stats
-  const stats = {
-    coursesCompleted: 12,
-    totalHours: 156,
-    certificates: 8,
-    currentStreak: 15
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
