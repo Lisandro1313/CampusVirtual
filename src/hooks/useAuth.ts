@@ -65,15 +65,47 @@ export const useAuthState = () => {
           console.log('👤 User logged in, fetching profile...');
           let profile = await fetchProfile(session.user.id);
           
-          console.log('📋 Profile fetch result:', profile);
+          console.log('📋 Profile fetch result:', {
+            profileExists: !!profile,
+            profileName: profile?.name,
+            profileRole: profile?.role,
+            userId: session.user.id
+          });
           
           if (!profile) {
-            console.log('⚠️ No profile found, creating one...');
-            profile = await createProfileIfNeeded(session.user, session.user.user_metadata);
-            console.log('📋 Created profile:', profile);
+            console.log('⚠️ No profile found for user:', session.user.id);
+            console.log('📧 User email:', session.user.email);
+            console.log('🔍 Checking if this matches our database...');
+            
+            // Let's check what's in the profiles table
+            if (supabase) {
+              const { data: allProfiles, error: listError } = await supabase
+                .from('profiles')
+                .select('id, email, name, role');
+              
+              console.log('📊 All profiles in database:', allProfiles);
+              console.log('🔍 Looking for email:', session.user.email);
+              
+              const matchingProfile = allProfiles?.find(p => p.email === session.user.email);
+              if (matchingProfile) {
+                console.log('🎯 Found matching profile by email:', matchingProfile);
+                profile = matchingProfile as Profile;
+              } else {
+                console.log('❌ No matching profile found by email either');
+              }
+            }
           }
           
-          console.log('✅ Setting auth state with profile:', profile?.name, 'Role:', profile?.role);
+          if (profile) {
+            console.log('✅ Setting auth state with profile:', {
+              name: profile.name,
+              role: profile.role,
+              email: profile.email
+            });
+          } else {
+            console.log('❌ Still no profile found - this is the issue!');
+          }
+          
           setAuth({
             user: session.user,
             profile,
@@ -82,12 +114,17 @@ export const useAuthState = () => {
           });
           
           // Navigate to dashboard after successful login
-          if (event === 'SIGNED_IN' && profile && profile.role) {
-            console.log('🎯 Navigating to dashboard after login');
+          if (event === 'SIGNED_IN' && profile?.role) {
+            console.log('🎯 Navigating to dashboard after login for role:', profile.role);
             setTimeout(() => {
               console.log('🚀 Executing navigation to /dashboard');
               window.location.href = '/dashboard';
             }, 100);
+          } else if (event === 'SIGNED_IN') {
+            console.log('🚨 Cannot navigate - missing profile or role:', {
+              hasProfile: !!profile,
+              role: profile?.role
+            });
           }
         } else {
           console.log('❌ User logged out, clearing auth state');
@@ -115,12 +152,27 @@ export const useAuthState = () => {
         .eq('id', userId)
         .single();
 
+      console.log('🔍 Profile query result:', { data, error });
+      
       if (error) {
-        console.error('❌ Error fetching profile:', error);
+        console.error('❌ Error fetching profile:', error.message, error.code);
+        if (error.code === 'PGRST116') {
+          console.log('🚨 Profile not found - this is the problem!');
+        }
         return null;
       }
       
-      console.log('✅ Profile fetched successfully:', data?.name, data?.role);
+      if (!data) {
+        console.log('🚨 No profile data returned');
+        return null;
+      }
+      
+      console.log('✅ Profile fetched successfully:', {
+        name: data.name,
+        role: data.role,
+        email: data.email,
+        id: data.id
+      });
       return data;
     } catch (error) {
       console.error('Error fetching profile:', error);
