@@ -151,6 +151,7 @@ export const useAuthState = () => {
       console.log('⏳ Attempting direct profile query...');
       try {
         const { data, error } = await supabase
+      }
       try {
         const { data, error } = await supabase
           .from('profiles')
