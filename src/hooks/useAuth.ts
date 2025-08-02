@@ -210,6 +210,8 @@ export const useAuthState = () => {
           name,
           email,
           role,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           avatar_url: role === 'admin' 
             ? 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
             : 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
@@ -255,19 +257,46 @@ export const useAuthState = () => {
       return;
     }
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            phone,
+            role: 'student'
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      // Create profile in database if user was created
+      if (data.user) {
+        const profileData = {
+          id: data.user.id,
           name,
+          email,
+          role: 'student' as const,
           phone,
-          role: 'student'
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          avatar_url: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
+        };
+
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([profileData]);
+
+        if (profileError) {
+          console.warn('Profile creation failed:', profileError);
         }
       }
-    });
-
-    if (error) throw error;
+    } catch (error) {
+      console.error('Signup failed:', error);
+      throw error;
+    }
   };
 
   const signOut = async () => {

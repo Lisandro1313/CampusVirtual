@@ -223,8 +223,26 @@ class CourseService {
 
   async getUserEnrollments(userId: string): Promise<Enrollment[]> {
     if (!supabase) {
+      // Demo mode - return mock enrollments with proper course data
       const enrollments = JSON.parse(localStorage.getItem('demo-enrollments') || '[]');
-      return enrollments.filter((e: any) => e.user_id === userId);
+      const userEnrollments = enrollments.filter((e: any) => e.user_id === userId);
+      
+      // Map enrollments to include course data
+      return userEnrollments.map((enrollment: any) => ({
+        ...enrollment,
+        course: this.demoCourses.find(course => course.id === enrollment.course_id) || {
+          id: enrollment.course_id,
+          title: 'Curso Demo',
+          image_url: 'https://images.pexels.com/photos/8197530/pexels-photo-8197530.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
+          lessons: this.demoLessons.filter(l => l.course_id === enrollment.course_id)
+        }
+      }));
+    }
+
+    // Only proceed with Supabase if we have a valid UUID
+    if (!userId || userId.length !== 36 || !userId.includes('-')) {
+      console.warn('Invalid UUID format for userId:', userId);
+      return [];
     }
 
     try {
