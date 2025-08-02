@@ -147,25 +147,20 @@ export const useAuthState = () => {
     try {
       console.log('📋 Fetching profile for user:', userId);
       
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 30000);
-      });
-      
-      const fetchPromise = supabase
+      // Simple direct query without timeout wrapper
+      console.log('⏳ Starting profile query...');
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
-      
-      console.log('⏳ Starting profile query with timeout...');
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
       
       console.log('🔍 Profile query completed:', { 
         hasData: !!data, 
         error: error?.message,
         errorCode: error?.code 
       });
+      
       if (error) {
         console.error('❌ Error fetching profile:', error.message, error.code);
         
@@ -209,28 +204,6 @@ export const useAuthState = () => {
       return data;
     } catch (error) {
       console.error('💥 Unexpected error in fetchProfile:', error);
-      
-      // If it's a timeout, try a simpler approach
-      if (error.message === 'Profile fetch timeout') {
-        console.log('⏰ Profile fetch timed out, trying direct approach...');
-        try {
-          const { data: allProfiles } = await supabase
-            .from('profiles')
-            .select('*')
-            .limit(10);
-          
-          console.log('📊 Available profiles:', allProfiles);
-          
-          const profile = allProfiles?.find(p => p.id === userId);
-          if (profile) {
-            console.log('🎯 Found profile in list:', profile);
-            return profile;
-          }
-        } catch (listError) {
-          console.error('❌ Even list query failed:', listError);
-        }
-      }
-      
       return null;
     }
   };
