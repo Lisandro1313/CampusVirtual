@@ -36,8 +36,63 @@ export const Profile: React.FC = () => {
 
   const handleSave = () => {
     setProfile(editForm);
-    // Also update the auth profile
-    auth.updateProfile({
+    // Update the auth profile
+    if (auth.updateProfile) {
+      auth.updateProfile({
+        name: editForm.name,
+        bio: editForm.bio,
+        location: editForm.location
+      });
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditForm(profile);
+    setIsEditing(false);
+  };
+
+  const addSkill = () => {
+    if (newSkill.trim() && !editForm.skills.includes(newSkill.trim())) {
+      setEditForm(prev => ({
+        ...prev,
+        skills: [...prev.skills, newSkill.trim()]
+      }));
+      setNewSkill('');
+    }
+  };
+
+  const removeSkill = (skill: string) => {
+    setEditForm(prev => ({
+      ...prev,
+      skills: prev.skills.filter(s => s !== skill)
+    }));
+  };
+
+  const addInterest = () => {
+    if (newInterest.trim() && !editForm.interests.includes(newInterest.trim())) {
+      setEditForm(prev => ({
+        ...prev,
+        interests: [...prev.interests, newInterest.trim()]
+      }));
+      setNewInterest('');
+    }
+  };
+
+  const removeInterest = (interest: string) => {
+    setEditForm(prev => ({
+      ...prev,
+      interests: prev.interests.filter(i => i !== interest)
+    }));
+  };
+
+  // Real stats - start at 0
+  const stats = {
+    coursesCompleted: 0,
+    totalHours: 0,
+    certificates: 0,
+    currentStreak: 0
+  };
       name: editForm.name,
       bio: editForm.bio,
       location: editForm.location

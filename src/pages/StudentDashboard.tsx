@@ -23,7 +23,6 @@ export const StudentDashboard: React.FC = () => {
       setEnrollments(userEnrollments);
     } catch (error) {
       console.error('Error loading enrollments:', error);
-      // Set empty array on error so UI still works
       setEnrollments([]);
     } finally {
       setLoading(false);
@@ -34,7 +33,7 @@ export const StudentDashboard: React.FC = () => {
   const totalCourses = enrollments.length;
   const completedCourses = enrollments.filter(e => e.completed).length;
   const averageProgress = enrollments.reduce((acc, e) => acc + e.progress, 0) / totalCourses || 0;
-  const totalHours = Math.round(averageProgress * totalCourses * 8 * 0.75); // Estimate
+  const totalHours = Math.round(averageProgress * totalCourses * 0.75);
 
   if (loading) {
     return (

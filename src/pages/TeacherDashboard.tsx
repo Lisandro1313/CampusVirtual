@@ -12,28 +12,19 @@ export const TeacherDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
-    // Load courses from localStorage on mount
-    const savedCourses = localStorage.getItem('campus-courses');
-    if (savedCourses) {
-      try {
-        const parsedCourses = JSON.parse(savedCourses);
-        allCourses.splice(0, allCourses.length, ...parsedCourses);
-      } catch (error) {
-        console.error('Error loading saved courses:', error);
-      }
-    }
     loadCourses();
   }, []);
 
   const loadCourses = async () => {
     try {
       const allCourses = await courseService.getCourses();
-      // For demo, show all courses for any teacher
-      const teacherCourses = auth.profile?.role === 'teacher' ? allCourses : [];
+      // Filter courses by instructor
+      const teacherCourses = allCourses.filter(course => 
+        course.instructor_id === auth.profile?.id
+      );
       setCourses(teacherCourses);
     } catch (error) {
       console.error('Error loading courses:', error);
-      // Set empty array on error so UI still works
       setCourses([]);
     } finally {
       setLoading(false);
@@ -43,7 +34,7 @@ export const TeacherDashboard: React.FC = () => {
   // Calculate stats
   const totalStudents = courses.reduce((acc, course) => acc + (course.enrollments_count || 0), 0);
   const totalRevenue = courses.reduce((acc, course) => acc + (course.price * (course.enrollments_count || 0)), 0);
-  const averageRating = 4.8; // Would be calculated from real ratings
+  const averageRating = courses.length > 0 ? 4.8 : 0;
 
   if (loading) {
     return (

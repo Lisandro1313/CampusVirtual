@@ -29,7 +29,6 @@ export const useAuthState = () => {
 
   useEffect(() => {
     if (!supabase) {
-      console.warn('⚠️ Supabase not configured, using demo mode');
       setAuth(prev => ({ ...prev, isLoading: false }));
       return;
     }
@@ -39,8 +38,7 @@ export const useAuthState = () => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
-          console.log('👤 Found existing session for:', session.user.email);
-          const profile = createMockProfile(session.user);
+          const profile = createEmptyProfile(session.user);
           setAuth({
             user: session.user,
             profile,
@@ -60,18 +58,14 @@ export const useAuthState = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 Auth state changed:', event, session?.user?.email);
-        
         if (session?.user) {
-          const profile = createMockProfile(session.user);
-          
+          const profile = createEmptyProfile(session.user);
           setAuth({
             user: session.user,
             profile,
             isAuthenticated: true,
             isLoading: false,
           });
-          
         } else {
           setAuth({
             user: null,
@@ -86,15 +80,19 @@ export const useAuthState = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const createMockProfile = (user: User): Profile => {
-    // Determine role based on email
+  const createEmptyProfile = (user: User): Profile => {
+    // Get saved profile from localStorage or create empty one
+    const savedProfile = localStorage.getItem(`profile-${user.id}`);
+    if (savedProfile) {
+      return JSON.parse(savedProfile);
+    }
+
     let role: 'student' | 'teacher' | 'admin' = 'student';
-    
     if (user.email?.includes('admin') || user.email?.includes('norma')) {
       role = 'teacher';
     }
     
-    return {
+    const emptyProfile: Profile = {
       id: user.id,
       name: user.email?.split('@')[0] || 'Usuario',
       email: user.email || '',
@@ -106,6 +104,10 @@ export const useAuthState = () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
+
+    // Save to localStorage
+    localStorage.setItem(`profile-${user.id}`, JSON.stringify(emptyProfile));
+    return emptyProfile;
   };
 
   const signIn = async (email: string, password: string) => {
@@ -113,19 +115,12 @@ export const useAuthState = () => {
       throw new Error('Supabase no está configurado');
     }
 
-    console.log('🔐 Attempting login with:', email);
-    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      console.error('❌ Supabase auth error:', error.message);
-      throw error;
-    }
-
-    console.log('✅ Login successful for:', data.user?.email);
+    if (error) throw error;
   };
 
   const signUp = async (email: string, password: string, name: string, phone?: string) => {
@@ -158,11 +153,16 @@ export const useAuthState = () => {
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!auth.user) throw new Error('No user logged in');
+    if (!auth.user || !auth.profile) return;
 
+    const updatedProfile = { ...auth.profile, ...updates };
+    
+    // Save to localStorage
+    localStorage.setItem(`profile-${auth.user.id}`, JSON.stringify(updatedProfile));
+    
     setAuth(prev => ({
       ...prev,
-      profile: prev.profile ? { ...prev.profile, ...updates } : null
+      profile: updatedProfile
     }));
   };
 
