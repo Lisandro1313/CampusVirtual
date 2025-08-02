@@ -43,18 +43,42 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: strin
 const DashboardRouter: React.FC = () => {
   const { auth } = useAuth();
 
+  console.log('DashboardRouter - auth state:', {
+    isAuthenticated: auth.isAuthenticated,
+    isLoading: auth.isLoading,
+    userRole: auth.profile?.role,
+    userId: auth.user?.id
+  });
+
   if (!auth.isAuthenticated) {
+    console.log('Not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
+  if (auth.isLoading) {
+    console.log('Auth still loading...');
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando perfil...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Usar el rol del perfil, no del user
+  console.log('Routing to dashboard based on role:', auth.profile?.role);
   switch (auth.profile?.role) {
     case 'teacher':
+      console.log('Loading teacher dashboard');
       return <TeacherDashboard />;
     case 'admin':
+      console.log('Loading admin dashboard (teacher dashboard)');
       return <TeacherDashboard />; // Admin uses teacher dashboard for now
     case 'student':
     default:
+      console.log('Loading student dashboard');
       return <StudentDashboard />;
   }
 };

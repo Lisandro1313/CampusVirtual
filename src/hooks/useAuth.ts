@@ -118,6 +118,8 @@ export const useAuthState = () => {
         throw new Error('Supabase no está configurado. Por favor configura las variables de entorno.');
       }
 
+      console.log('Attempting login with:', email);
+      
       // Autenticación real con Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -125,10 +127,20 @@ export const useAuthState = () => {
       });
 
       if (error) {
+        console.error('Supabase auth error:', error);
         throw error;
       }
 
+      console.log('Login successful, user:', data.user?.email);
+      
+      // Wait for profile to be loaded
+      if (data.user) {
+        const profile = await fetchProfile(data.user.id);
+        console.log('Profile loaded:', profile);
+      }
+
     } catch (error) {
+      console.error('Login error:', error);
       throw error;
     }
   };

@@ -17,10 +17,14 @@ export const Login: React.FC = () => {
     setError('');
     setIsLoading(true);
 
+    console.log('Login form submitted');
+
     try {
       await signIn(email, password);
+      console.log('Sign in completed, navigating to dashboard');
       navigate('/dashboard');
     } catch (err) {
+      console.error('Login failed:', err);
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {
       setIsLoading(false);
