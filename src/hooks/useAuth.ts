@@ -96,9 +96,12 @@ export const useAuthState = () => {
     
     return {
       id: user.id,
-      name: user.email?.split('@')[0] || 'Usuario',
+      name: user.email?.includes('norma') ? 'Norma Skuletich' : user.email?.split('@')[0] || 'Usuario',
       email: user.email || '',
       role,
+      avatar_url: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      bio: role === 'teacher' ? 'Magister en Educación con experiencia en formación docente' : 'Estudiante de formación docente',
+      location: 'Buenos Aires, Argentina',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };

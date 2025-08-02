@@ -26,6 +26,8 @@ export const Courses: React.FC = () => {
       setCourses(coursesData);
     } catch (error) {
       console.error('Error loading courses:', error);
+      // Set empty array on error so UI still works
+      setCourses([]);
     } finally {
       setLoading(false);
     }

@@ -2,7 +2,7 @@ import type { Course } from '../lib/supabase';
 import type { LessonProgress } from '../lib/supabase';
 
 // Mock data for demo mode
-export const allCourses: Course[] = [
+export let allCourses: Course[] = [
   {
     id: '1',
     title: 'Metodologías de Enseñanza Innovadoras',
@@ -12,11 +12,22 @@ export const allCourses: Course[] = [
     category: 'Pedagogía',
     level: 'intermediate' as const,
     price: 15000,
-    image_url: 'https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg',
+    image_url: 'https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
     featured: true,
     tags: ['metodología', 'innovación', 'pedagogía'],
     created_at: '2024-01-01T00:00:00.000Z',
-    updated_at: '2024-01-01T00:00:00.000Z'
+    updated_at: '2024-01-01T00:00:00.000Z',
+    enrollments_count: 45,
+    instructor: {
+      id: 'teacher-1',
+      name: 'Norma Skuletich',
+      email: 'norma@esfd.com',
+      role: 'teacher',
+      avatar_url: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      bio: 'Magister en Educación con más de 15 años de experiencia',
+      created_at: '2024-01-01T00:00:00.000Z',
+      updated_at: '2024-01-01T00:00:00.000Z'
+    }
   },
   {
     id: '2',
@@ -27,11 +38,22 @@ export const allCourses: Course[] = [
     category: 'Evaluación',
     level: 'beginner' as const,
     price: 12000,
-    image_url: 'https://images.pexels.com/photos/5427674/pexels-photo-5427674.jpeg',
+    image_url: 'https://images.pexels.com/photos/5427674/pexels-photo-5427674.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
     featured: false,
     tags: ['evaluación', 'formativa', 'sumativa'],
     created_at: '2024-01-02T00:00:00.000Z',
-    updated_at: '2024-01-02T00:00:00.000Z'
+    updated_at: '2024-01-02T00:00:00.000Z',
+    enrollments_count: 32,
+    instructor: {
+      id: 'teacher-1',
+      name: 'Norma Skuletich',
+      email: 'norma@esfd.com',
+      role: 'teacher',
+      avatar_url: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      bio: 'Magister en Educación con más de 15 años de experiencia',
+      created_at: '2024-01-01T00:00:00.000Z',
+      updated_at: '2024-01-01T00:00:00.000Z'
+    }
   },
   {
     id: '3',
@@ -42,11 +64,22 @@ export const allCourses: Course[] = [
     category: 'Tecnología',
     level: 'intermediate' as const,
     price: 18000,
-    image_url: 'https://images.pexels.com/photos/5212317/pexels-photo-5212317.jpeg',
+    image_url: 'https://images.pexels.com/photos/5212317/pexels-photo-5212317.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
     featured: true,
     tags: ['tecnología', 'digital', 'herramientas'],
     created_at: '2024-01-03T00:00:00.000Z',
-    updated_at: '2024-01-03T00:00:00.000Z'
+    updated_at: '2024-01-03T00:00:00.000Z',
+    enrollments_count: 67,
+    instructor: {
+      id: 'teacher-1',
+      name: 'Norma Skuletich',
+      email: 'norma@esfd.com',
+      role: 'teacher',
+      avatar_url: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      bio: 'Magister en Educación con más de 15 años de experiencia',
+      created_at: '2024-01-01T00:00:00.000Z',
+      updated_at: '2024-01-01T00:00:00.000Z'
+    }
   },
   {
     id: '4',
@@ -57,11 +90,22 @@ export const allCourses: Course[] = [
     category: 'Gestión',
     level: 'beginner' as const,
     price: 10000,
-    image_url: 'https://images.pexels.com/photos/5212703/pexels-photo-5212703.jpeg',
+    image_url: 'https://images.pexels.com/photos/5212703/pexels-photo-5212703.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2',
     featured: false,
     tags: ['gestión', 'disciplina', 'ambiente'],
     created_at: '2024-01-04T00:00:00.000Z',
-    updated_at: '2024-01-04T00:00:00.000Z'
+    updated_at: '2024-01-04T00:00:00.000Z',
+    enrollments_count: 28,
+    instructor: {
+      id: 'teacher-1',
+      name: 'Norma Skuletich',
+      email: 'norma@esfd.com',
+      role: 'teacher',
+      avatar_url: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      bio: 'Magister en Educación con más de 15 años de experiencia',
+      created_at: '2024-01-01T00:00:00.000Z',
+      updated_at: '2024-01-01T00:00:00.000Z'
+    }
   }
 ];
 

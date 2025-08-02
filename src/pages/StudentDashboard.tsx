@@ -23,6 +23,8 @@ export const StudentDashboard: React.FC = () => {
       setEnrollments(userEnrollments);
     } catch (error) {
       console.error('Error loading enrollments:', error);
+      // Set empty array on error so UI still works
+      setEnrollments([]);
     } finally {
       setLoading(false);
     }

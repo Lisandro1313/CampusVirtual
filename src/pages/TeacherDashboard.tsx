@@ -18,12 +18,13 @@ export const TeacherDashboard: React.FC = () => {
   const loadCourses = async () => {
     try {
       const allCourses = await courseService.getCourses();
-      const teacherCourses = allCourses.filter(course => 
-        course.instructor_id === auth.profile?.id
-      );
+      // For demo, show all courses for any teacher
+      const teacherCourses = auth.profile?.role === 'teacher' ? allCourses : [];
       setCourses(teacherCourses);
     } catch (error) {
       console.error('Error loading courses:', error);
+      // Set empty array on error so UI still works
+      setCourses([]);
     } finally {
       setLoading(false);
     }
