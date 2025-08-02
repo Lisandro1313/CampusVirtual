@@ -151,6 +151,8 @@ export const useAuthState = () => {
       console.log('⏳ Attempting direct profile query...');
       try {
         const { data, error } = await supabase
+      try {
+        const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', userId)
@@ -160,12 +162,15 @@ export const useAuthState = () => {
           console.log('✅ Profile found by ID:', data.name, data.role);
           return data;
         }
+        
+        console.log('❌ Profile not found by ID, error:', error?.message);
+      } catch (directError) {
+        console.log('❌ Direct query failed:', directError);
       }
       
-      console.log('❌ Profile not found by ID, error:', error?.message);
-      
       // Try email fallback
-      try {
+      console.log('🔄 Trying email fallback...');
+      try { 
         console.log('🔄 Direct query failed, trying email fallback...');
         
         // Get user email for fallback
@@ -182,7 +187,7 @@ export const useAuthState = () => {
             
           if (profileByEmail && !emailError) {
             console.log('✅ Found profile by email:', profileByEmail.name, profileByEmail.role);
-            return emailResult;
+            return profileByEmail;
           }
           
           console.log('❌ Email query failed:', emailError?.message);
