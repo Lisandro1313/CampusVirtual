@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLocalStorage } from './useLocalStorage';
-import { allCourses } from '../data/mockData';
+import { allCourses } from '../data/mockData.ts';
 import { Course } from '../types';
 
 export interface SearchFilters {

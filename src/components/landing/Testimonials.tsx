@@ -1,6 +1,6 @@
 import React from 'react';
 import { Star, Quote } from 'lucide-react';
-import { testimonials } from '../../data/mockData';
+import { testimonials } from '../../data/mockData.ts';
 
 export const Testimonials: React.FC = () => {
   return (
