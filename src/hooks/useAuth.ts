@@ -151,9 +151,6 @@ export const useAuthState = () => {
       console.log('⏳ Attempting direct profile query...');
       try {
         const { data, error } = await supabase
-      }
-      try {
-        const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', userId)
@@ -189,7 +186,6 @@ export const useAuthState = () => {
           }
           
           console.log('❌ Email query failed:', emailError?.message);
-        }
       } catch (emailError) {
         console.log('❌ Email query also failed:', emailError);
       }
