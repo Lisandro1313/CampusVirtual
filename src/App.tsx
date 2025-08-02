@@ -43,20 +43,21 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: strin
 const DashboardRouter: React.FC = () => {
   const { auth } = useAuth();
 
-  console.log('DashboardRouter - auth state:', {
+  console.log('🏠 DashboardRouter - auth state:', {
     isAuthenticated: auth.isAuthenticated,
     isLoading: auth.isLoading,
     userRole: auth.profile?.role,
-    userId: auth.user?.id
+    userId: auth.user?.id,
+    profileExists: !!auth.profile
   });
 
   if (!auth.isAuthenticated) {
-    console.log('Not authenticated, redirecting to login');
+    console.log('🚫 Not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   if (auth.isLoading) {
-    console.log('Auth still loading...');
+    console.log('⏳ Auth still loading...');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -67,18 +68,36 @@ const DashboardRouter: React.FC = () => {
     );
   }
 
+  if (!auth.profile) {
+    console.log('⚠️ No profile found, showing error');
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Error de Perfil</h2>
+          <p className="text-gray-600 mb-4">No se pudo cargar tu perfil. Verifica la configuración.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Usar el rol del perfil, no del user
-  console.log('Routing to dashboard based on role:', auth.profile?.role);
+  console.log('🎯 Routing to dashboard based on role:', auth.profile?.role);
   switch (auth.profile?.role) {
     case 'teacher':
-      console.log('Loading teacher dashboard');
+      console.log('👩‍🏫 Loading teacher dashboard');
       return <TeacherDashboard />;
     case 'admin':
-      console.log('Loading admin dashboard (teacher dashboard)');
+      console.log('👨‍💼 Loading admin dashboard (teacher dashboard)');
       return <TeacherDashboard />; // Admin uses teacher dashboard for now
     case 'student':
     default:
-      console.log('Loading student dashboard');
+      console.log('👨‍🎓 Loading student dashboard');
       return <StudentDashboard />;
   }
 };
