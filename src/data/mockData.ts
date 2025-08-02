@@ -64,6 +64,33 @@ export const allCourses: Course[] = [
   }
 ];
 
+export const testimonials = [
+  {
+    id: '1',
+    name: 'María González',
+    role: 'Profesora de Primaria',
+    content: 'Los cursos de formación docente han transformado mi práctica en el aula. Las metodologías innovadoras que aprendí me ayudaron a conectar mejor con mis estudiantes.',
+    avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg',
+    rating: 5
+  },
+  {
+    id: '2',
+    name: 'Carlos Rodríguez',
+    role: 'Director de Escuela',
+    content: 'Excelente plataforma para la capacitación continua. Los contenidos son actualizados y muy relevantes para los desafíos educativos actuales.',
+    avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg',
+    rating: 5
+  },
+  {
+    id: '3',
+    name: 'Ana Martínez',
+    role: 'Profesora de Secundaria',
+    content: 'La integración de tecnología educativa que aprendí aquí ha revolucionado mis clases. Mis estudiantes están más motivados y participativos.',
+    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg',
+    rating: 5
+  }
+];
+
 export const mockEnrollments = [
   {
     id: 'enrollment-1',
