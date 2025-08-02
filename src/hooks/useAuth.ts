@@ -176,27 +176,33 @@ export const useAuthState = () => {
     try {
       console.log('🔄 Trying email fallback with timeout...');
       
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      const emailQueryPromise = supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', user?.email)
-        .single();
-      
-      const { data: profileByEmail, error: emailError } = await Promise.race([
-        emailQueryPromise, 
-        timeoutPromise
-      ]);
-      
-      if (profileByEmail && !emailError) {
-        console.log('✅ Found profile by email:', profileByEmail.name, profileByEmail.role);
-        return profileByEmail;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user?.email) {
+          const emailQueryPromise = supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', user.email)
+            .single();
+          
+          const { data: profileByEmail, error: emailError } = await Promise.race([
+            emailQueryPromise, 
+            timeoutPromise
+          ]);
+          
+          if (profileByEmail && !emailError) {
+            console.log('✅ Found profile by email:', profileByEmail.name, profileByEmail.role);
+            return profileByEmail;
+          }
+          
+          console.log('❌ Email query failed:', emailError?.message);
+        }
+      } catch (emailError) {
+        console.log('❌ Email query also failed or timed out:', emailError);
       }
-      
-      console.log('❌ Email query failed:', emailError?.message);
-    } catch (emailError) {
-      console.log('❌ Email query also failed or timed out:', emailError);
+    } catch (directError) {
+      console.log('❌ Direct query failed or timed out:', directError);
     }
     
     // Create emergency fallback profile
