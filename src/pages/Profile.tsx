@@ -18,16 +18,16 @@ interface UserProfile {
 export const Profile: React.FC = () => {
   const { auth } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useLocalStorage<UserProfile>('user-profile', {
-    name: auth.user?.name || '',
-    email: auth.user?.email || '',
-    bio: auth.user?.bio || 'Apasionado por el aprendizaje continuo y la tecnología.',
-    location: auth.user?.location || 'Buenos Aires, Argentina',
+  const [profile, setProfile] = useLocalStorage<UserProfile>(`user-profile-${auth.profile?.id}`, {
+    name: auth.profile?.name || '',
+    email: auth.profile?.email || '',
+    bio: auth.profile?.bio || '',
+    location: auth.profile?.location || '',
     website: '',
     linkedin: '',
     twitter: '',
-    skills: ['JavaScript', 'React', 'Node.js'],
-    interests: ['Desarrollo Web', 'Inteligencia Artificial', 'Diseño UX/UI']
+    skills: [],
+    interests: []
   });
 
   const [editForm, setEditForm] = useState(profile);
@@ -36,6 +36,12 @@ export const Profile: React.FC = () => {
 
   const handleSave = () => {
     setProfile(editForm);
+    // Also update the auth profile
+    auth.updateProfile({
+      name: editForm.name,
+      bio: editForm.bio,
+      location: editForm.location
+    });
     setIsEditing(false);
   };
 

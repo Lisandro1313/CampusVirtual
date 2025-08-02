@@ -12,6 +12,16 @@ export const TeacherDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
+    // Load courses from localStorage on mount
+    const savedCourses = localStorage.getItem('campus-courses');
+    if (savedCourses) {
+      try {
+        const parsedCourses = JSON.parse(savedCourses);
+        allCourses.splice(0, allCourses.length, ...parsedCourses);
+      } catch (error) {
+        console.error('Error loading saved courses:', error);
+      }
+    }
     loadCourses();
   }, []);
 

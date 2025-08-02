@@ -24,6 +24,10 @@ class CourseService {
       enrollments_count: 0
     };
     allCourses.unshift(newCourse);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('campus-courses', JSON.stringify(allCourses));
+    
     return newCourse;
   }
 
