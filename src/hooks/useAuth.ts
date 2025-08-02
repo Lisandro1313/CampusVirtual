@@ -77,6 +77,14 @@ export const useAuthState = () => {
             isAuthenticated: true,
             isLoading: false,
           });
+          
+          // Navigate to dashboard after successful login
+          if (event === 'SIGNED_IN' && profile) {
+            console.log('🎯 Navigating to dashboard after login');
+            setTimeout(() => {
+              window.location.href = '/dashboard';
+            }, 100);
+          }
         } else {
           console.log('❌ User logged out, clearing auth state');
           setAuth({

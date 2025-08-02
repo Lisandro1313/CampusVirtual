@@ -22,15 +22,15 @@ export const Login: React.FC = () => {
     try {
       await signIn(email, password);
       console.log('🎯 Sign in completed successfully');
-      // Don't navigate immediately - let the auth state change handle it
+      console.log('⏳ Waiting for auth state change to handle navigation...');
     } catch (err) {
       console.error('❌ Login failed:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';
       setError(errorMessage);
       setIsLoading(false);
-    } finally {
-      console.log('🏁 Login process finished');
     }
+    
+    console.log('🏁 Login process finished');
   };
 
   const demoUsers = [

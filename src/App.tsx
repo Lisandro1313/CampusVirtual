@@ -106,14 +106,6 @@ const DashboardRouter: React.FC = () => {
 function AppContent() {
   const { auth } = useAuth();
 
-  // Auto-navigate after successful login
-  React.useEffect(() => {
-    if (auth.isAuthenticated && !auth.isLoading && window.location.pathname === '/login') {
-      console.log('🎯 Auto-navigating to dashboard after login');
-      window.location.href = '/dashboard';
-    }
-  }, [auth.isAuthenticated, auth.isLoading]);
-
   return (
     <Router>
       <div className="min-h-screen bg-gray-100 flex flex-col">
