@@ -67,7 +67,13 @@ export const useAuthState = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          const profile = await fetchProfile(session.user.id);
+          let profile = await fetchProfile(session.user.id);
+          
+          // If no profile exists, try to create one
+          if (!profile) {
+            profile = await createProfileIfNeeded(session.user, session.user.user_metadata);
+          }
+          
           setAuth({
             user: session.user,
             profile,
@@ -107,33 +113,22 @@ export const useAuthState = () => {
   };
 
   const signIn = async (email: string, password: string) => {
-    if (!supabase) {
-      return handleDemoLogin(email, password);
-    }
-
     try {
+      // If Supabase is not configured, use demo mode
+      if (!supabase) {
+        return handleDemoLogin(email, password);
+      }
+
+      // Try Supabase authentication
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        // If credentials are invalid and it's a demo user, try to create them
-        if (error.message.includes('Invalid login credentials')) {
-          if (email === 'admin@esfd.com' && password === 'admin123') {
-            await createDemoUser(email, password, 'Administrador E.S.FD', 'admin');
-            return await signIn(email, password); // Retry login
-          }
-          if (email === 'norma@esfd.com' && password === 'norma123') {
-            await createDemoUser(email, password, 'Norma Skuletich', 'teacher');
-            return await signIn(email, password); // Retry login
-          }
-        }
-        throw error;
-      }
+      if (error) throw error;
+
     } catch (error) {
-      // If Supabase is not properly configured, fall back to demo mode
-      console.warn('Supabase authentication failed, falling back to demo mode:', error);
+      console.warn('Supabase authentication failed, using demo mode:', error);
       return handleDemoLogin(email, password);
     }
   };
@@ -235,29 +230,13 @@ export const useAuthState = () => {
   };
 
   const signUp = async (email: string, password: string, name: string, phone?: string) => {
-    if (!supabase) {
-      // Demo mode - create student
-      const newUser = {
-        id: `student-${Date.now()}`,
-        name,
-        email,
-        role: 'student',
-        phone,
-        avatar_url: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      localStorage.setItem('demo-user', JSON.stringify(newUser));
-      setAuth({
-        user: { id: newUser.id, email: newUser.email } as User,
-        profile: newUser,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      return;
-    }
-
     try {
+      // If Supabase is not configured, use demo mode
+      if (!supabase) {
+        return handleDemoSignup(email, password, name, phone);
+      }
+
+      // Try Supabase signup
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -272,30 +251,87 @@ export const useAuthState = () => {
 
       if (error) throw error;
 
-      // Create profile in database if user was created
-      if (data.user) {
-        const profileData = {
-          id: data.user.id,
-          name,
-          email,
-          role: 'student' as const,
-          phone,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          avatar_url: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
-        };
+      // If signup successful, user will be logged in automatically
+      // The auth state change listener will handle profile creation
 
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([profileData]);
-
-        if (profileError) {
-          console.warn('Profile creation failed:', profileError);
-        }
-      }
     } catch (error) {
-      console.error('Signup failed:', error);
-      throw error;
+      console.warn('Supabase signup failed, using demo mode:', error);
+      return handleDemoSignup(email, password, name, phone);
+    }
+  };
+
+  const handleDemoSignup = (email: string, password: string, name: string, phone?: string) => {
+    // Demo mode - create student
+    const newUser = {
+      id: `student-${Date.now()}`,
+      name,
+      email,
+      role: 'student' as const,
+      phone,
+      avatar_url: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    localStorage.setItem('demo-user', JSON.stringify(newUser));
+    setAuth({
+      user: { id: newUser.id, email: newUser.email } as User,
+      profile: newUser,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+  };
+
+  const createProfileIfNeeded = async (user: User, userData?: any) => {
+    if (!supabase) return null;
+
+    try {
+      // First check if profile already exists
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (existingProfile) {
+        return existingProfile;
+      }
+
+      // Create new profile
+      const profileData = {
+        id: user.id,
+        name: userData?.name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario',
+        email: user.email || '',
+        role: userData?.role || user.user_metadata?.role || 'student',
+        phone: userData?.phone || user.user_metadata?.phone,
+        avatar_url: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const { data: newProfile, error } = await supabase
+        .from('profiles')
+        .insert([profileData])
+        .select()
+        .single();
+
+      if (error) {
+        console.warn('Profile creation failed:', error);
+        // Return a basic profile structure even if database insert fails
+        return {
+          id: user.id,
+          name,
+          email: user.email || '',
+          role: 'student' as const,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+      }
+
+      return newProfile;
+
+    } catch (error) {
+      console.warn('Profile creation error:', error);
+      return null;
     }
   };
 
