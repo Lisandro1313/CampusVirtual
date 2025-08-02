@@ -21,15 +21,14 @@ export const Login: React.FC = () => {
 
     try {
       await signIn(email, password);
-      console.log('🎯 Sign in completed, navigating to dashboard');
-      navigate('/dashboard');
+      console.log('🎯 Sign in completed successfully');
+      // Don't navigate immediately - let the auth state change handle it
     } catch (err) {
       console.error('❌ Login failed:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';
-      console.log('🔍 Error details:', errorMessage);
       setError(errorMessage);
-    } finally {
       setIsLoading(false);
+    } finally {
       console.log('🏁 Login process finished');
     }
   };

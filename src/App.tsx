@@ -43,13 +43,15 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: strin
 const DashboardRouter: React.FC = () => {
   const { auth } = useAuth();
 
-  console.log('🏠 DashboardRouter - auth state:', {
-    isAuthenticated: auth.isAuthenticated,
-    isLoading: auth.isLoading,
-    userRole: auth.profile?.role,
-    userId: auth.user?.id,
-    profileExists: !!auth.profile
-  });
+  React.useEffect(() => {
+    console.log('🏠 DashboardRouter - auth state changed:', {
+      isAuthenticated: auth.isAuthenticated,
+      isLoading: auth.isLoading,
+      userRole: auth.profile?.role,
+      userId: auth.user?.id,
+      profileExists: !!auth.profile
+    });
+  }, [auth]);
 
   if (!auth.isAuthenticated) {
     console.log('🚫 Not authenticated, redirecting to login');
@@ -62,7 +64,7 @@ const DashboardRouter: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando perfil...</p>
+          <p className="text-gray-600">Cargando perfil de usuario...</p>
         </div>
       </div>
     );
@@ -86,7 +88,6 @@ const DashboardRouter: React.FC = () => {
     );
   }
 
-  // Usar el rol del perfil, no del user
   console.log('🎯 Routing to dashboard based on role:', auth.profile?.role);
   switch (auth.profile?.role) {
     case 'teacher':
@@ -94,7 +95,7 @@ const DashboardRouter: React.FC = () => {
       return <TeacherDashboard />;
     case 'admin':
       console.log('👨‍💼 Loading admin dashboard (teacher dashboard)');
-      return <TeacherDashboard />; // Admin uses teacher dashboard for now
+      return <TeacherDashboard />;
     case 'student':
     default:
       console.log('👨‍🎓 Loading student dashboard');
@@ -104,6 +105,14 @@ const DashboardRouter: React.FC = () => {
 
 function AppContent() {
   const { auth } = useAuth();
+
+  // Auto-navigate after successful login
+  React.useEffect(() => {
+    if (auth.isAuthenticated && !auth.isLoading && window.location.pathname === '/login') {
+      console.log('🎯 Auto-navigating to dashboard after login');
+      window.location.href = '/dashboard';
+    }
+  }, [auth.isAuthenticated, auth.isLoading]);
 
   return (
     <Router>

@@ -29,28 +29,20 @@ export const useAuthState = () => {
 
   useEffect(() => {
     if (!supabase) {
-      // Demo mode - use localStorage
-      const demoUser = localStorage.getItem('demo-user');
-      if (demoUser) {
-        const user = JSON.parse(demoUser);
-        setAuth({
-          user: { id: user.id, email: user.email } as User,
-          profile: user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      } else {
-        setAuth(prev => ({ ...prev, isLoading: false }));
-      }
+      console.warn('⚠️ Supabase not configured, setting loading to false');
+      setAuth(prev => ({ ...prev, isLoading: false }));
       return;
     }
 
-    // Real Supabase auth
+    console.log('🚀 Initializing Supabase auth...');
     const initAuth = async () => {
+      console.log('🔍 Getting initial session...');
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
+        console.log('👤 Found existing session for:', session.user.email);
         const profile = await fetchProfile(session.user.id);
+        console.log('📋 Profile loaded:', profile?.name, 'Role:', profile?.role);
         setAuth({
           user: session.user,
           profile,
@@ -58,6 +50,7 @@ export const useAuthState = () => {
           isLoading: false,
         });
       } else {
+        console.log('❌ No existing session found');
         setAuth(prev => ({ ...prev, isLoading: false }));
       }
     };
@@ -66,14 +59,18 @@ export const useAuthState = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔄 Auth state changed:', event, session?.user?.email);
+        
         if (session?.user) {
+          console.log('👤 User logged in, fetching profile...');
           let profile = await fetchProfile(session.user.id);
           
-          // If no profile exists, try to create one
           if (!profile) {
+            console.log('⚠️ No profile found, creating one...');
             profile = await createProfileIfNeeded(session.user, session.user.user_metadata);
           }
           
+          console.log('✅ Setting auth state with profile:', profile?.name, 'Role:', profile?.role);
           setAuth({
             user: session.user,
             profile,
@@ -81,6 +78,7 @@ export const useAuthState = () => {
             isLoading: false,
           });
         } else {
+          console.log('❌ User logged out, clearing auth state');
           setAuth({
             user: null,
             profile: null,
@@ -98,13 +96,19 @@ export const useAuthState = () => {
     if (!supabase) return null;
     
     try {
+      console.log('📋 Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching profile:', error);
+        throw error;
+      }
+      
+      console.log('✅ Profile fetched successfully:', data?.name, data?.role);
       return data;
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -115,12 +119,12 @@ export const useAuthState = () => {
   const signIn = async (email: string, password: string) => {
     try {
       if (!supabase) {
-        throw new Error('Supabase no está configurado. Por favor configura las variables de entorno.');
+        console.error('❌ Supabase not configured');
+        throw new Error('Supabase no está configurado');
       }
 
       console.log('🔐 Attempting login with:', email);
       
-      // Autenticación real con Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -131,14 +135,8 @@ export const useAuthState = () => {
         throw error;
       }
 
-      console.log('✅ Login successful, user:', data.user?.email);
-      
-      // Wait for profile to be loaded
-      if (data.user) {
-        console.log('📋 Loading profile for user:', data.user.id);
-        const profile = await fetchProfile(data.user.id);
-        console.log('👤 Profile loaded:', profile?.name, 'Role:', profile?.role);
-      }
+      console.log('✅ Login successful for:', data.user?.email);
+      console.log('🎯 Auth state will be updated by onAuthStateChange listener');
 
     } catch (error) {
       console.error('💥 Login error:', error);
