@@ -191,10 +191,14 @@ export const About: React.FC = () => {
         </div>
       </section>
 
+      <section className="py-20 bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold mb-6">
             Formando los Docentes del 
             <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Futuro</span>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-6">¿Listo para Comenzar tu Transformación?</h2>
+          </h2>
+          <h3 className="text-2xl font-semibold mb-6">¿Listo para Comenzar tu Transformación?</h3>
+          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
             En E.S.FD, creemos que la formación docente de calidad es la base de una educación transformadora. 
             Únete a cientos de docentes que ya han transformado su práctica educativa con E.S.FD
           </p>
@@ -214,7 +218,6 @@ export const About: React.FC = () => {
             </Link>
           </div>
         </div>
-      </section>
     </div>
   );
 };
