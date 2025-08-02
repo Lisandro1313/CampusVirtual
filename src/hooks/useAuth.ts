@@ -65,9 +65,12 @@ export const useAuthState = () => {
           console.log('👤 User logged in, fetching profile...');
           let profile = await fetchProfile(session.user.id);
           
+          console.log('📋 Profile fetch result:', profile);
+          
           if (!profile) {
             console.log('⚠️ No profile found, creating one...');
             profile = await createProfileIfNeeded(session.user, session.user.user_metadata);
+            console.log('📋 Created profile:', profile);
           }
           
           console.log('✅ Setting auth state with profile:', profile?.name, 'Role:', profile?.role);
@@ -79,9 +82,10 @@ export const useAuthState = () => {
           });
           
           // Navigate to dashboard after successful login
-          if (event === 'SIGNED_IN' && profile) {
+          if (event === 'SIGNED_IN' && profile && profile.role) {
             console.log('🎯 Navigating to dashboard after login');
             setTimeout(() => {
+              console.log('🚀 Executing navigation to /dashboard');
               window.location.href = '/dashboard';
             }, 100);
           }
@@ -113,7 +117,7 @@ export const useAuthState = () => {
 
       if (error) {
         console.error('❌ Error fetching profile:', error);
-        throw error;
+        return null;
       }
       
       console.log('✅ Profile fetched successfully:', data?.name, data?.role);
@@ -181,6 +185,7 @@ export const useAuthState = () => {
     if (!supabase) return null;
 
     try {
+      console.log('🔍 Checking if profile exists for user:', user.id);
       // First check if profile already exists
       const { data: existingProfile } = await supabase
         .from('profiles')
@@ -189,9 +194,11 @@ export const useAuthState = () => {
         .single();
 
       if (existingProfile) {
+        console.log('✅ Found existing profile:', existingProfile.name, existingProfile.role);
         return existingProfile;
       }
 
+      console.log('🆕 Creating new profile...');
       // Create new profile
       const profileData = {
         id: user.id,
@@ -201,6 +208,7 @@ export const useAuthState = () => {
         phone: userData?.phone || user.user_metadata?.phone,
       };
 
+      console.log('📝 Profile data to insert:', profileData);
       const { data: newProfile, error } = await supabase
         .from('profiles')
         .insert([profileData])
@@ -208,14 +216,15 @@ export const useAuthState = () => {
         .single();
 
       if (error) {
-        console.warn('Profile creation failed:', error);
+        console.error('❌ Profile creation failed:', error);
         return null;
       }
 
+      console.log('✅ Profile created successfully:', newProfile);
       return newProfile;
 
     } catch (error) {
-      console.warn('Profile creation error:', error);
+      console.error('❌ Profile creation error:', error);
       return null;
     }
   };
