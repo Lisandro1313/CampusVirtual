@@ -114,21 +114,28 @@ export const useAuthState = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      // If Supabase is not configured, use demo mode
+      // If Supabase is not configured, use demo mode immediately
       if (!supabase) {
         return handleDemoLogin(email, password);
       }
 
-      // Try Supabase authentication
+      // Try Supabase authentication, but fallback to demo mode on any error
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // If it's an invalid credentials error, try demo mode
+        if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
+          console.warn('Supabase user not found, trying demo mode:', error.message);
+          return handleDemoLogin(email, password);
+        }
+        throw error;
+      }
 
     } catch (error) {
-      console.warn('Supabase authentication failed, using demo mode:', error);
+      console.warn('Supabase authentication failed, falling back to demo mode:', error);
       return handleDemoLogin(email, password);
     }
   };

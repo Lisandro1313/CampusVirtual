@@ -65,6 +65,11 @@ export const Login: React.FC = () => {
         {/* Demo Users */}
         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6">
           <h3 className="text-white font-semibold mb-3 text-center">👥 Usuarios de Prueba</h3>
+          <div className="mb-3 p-2 bg-blue-600/20 rounded-lg">
+            <p className="text-blue-200 text-xs text-center">
+              💡 Estos usuarios funcionan en modo demo si no están configurados en Supabase
+            </p>
+          </div>
           <div className="space-y-2">
             {demoUsers.map((user, index) => (
               <button
