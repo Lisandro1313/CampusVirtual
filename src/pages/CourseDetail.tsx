@@ -43,17 +43,15 @@ export const CourseDetail: React.FC = () => {
     
     setEnrolling(true);
     try {
-      // Create MercadoPago preference
-      const preference = await mercadoPagoService.createPreference({
-        courseId: course.id,
-        userId: auth.user?.id || auth.profile?.id || '',
-        amount: course.price,
-        title: course.title,
-        description: course.short_description || course.description
-      });
-
-      // Process payment
-      await mercadoPagoService.processPayment(preference.id);
+      // Simulate MercadoPago payment
+      const confirmed = confirm(`¿Confirmar pago de $${course.price} por MercadoPago?\n\n(Esto es una simulación)`);
+      
+      if (confirmed) {
+        // Enroll user in course
+        await courseService.enrollInCourse(course.id, auth.user?.id || auth.profile?.id || '');
+        alert('¡Pago exitoso! Ya estás inscrito en el curso.');
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Error processing enrollment:', error);
       alert('Error al procesar la inscripción. Intenta nuevamente.');

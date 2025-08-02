@@ -88,19 +88,17 @@ export const NewCourse: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Create course
-      const newCourse = await courseService.createCourse({
+      // Create course with lessons
+      const courseWithLessons = {
         ...courseData,
-        instructor_id: auth.profile?.id || 'teacher-1'
-      });
-
-      // Create lessons
-      for (const lessonData of lessons) {
-        await courseService.createLesson({
-          ...lessonData,
-          course_id: newCourse.id
-        });
-      }
+        instructor_id: auth.profile?.id || auth.user?.id || '',
+        instructor_name: auth.profile?.name || auth.user?.email?.split('@')[0] || 'Instructor',
+        lessons: lessons
+      };
+      
+      await courseService.createCourse(courseWithLessons);
+      
+      alert('¡Curso creado exitosamente!');
 
       setIsSubmitting(false);
       navigate('/dashboard');

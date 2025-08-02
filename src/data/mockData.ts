@@ -1,7 +1,5 @@
-// Empty mock data - everything starts clean
-export const allCourses: any[] = [];
-
-export const testimonials: any[] = [
+// Mock data for the application
+export const testimonials = [
   {
     id: '1',
     name: 'María González',
@@ -28,6 +26,6 @@ export const testimonials: any[] = [
   }
 ];
 
+export const allCourses: any[] = [];
 export const mockEnrollments: any[] = [];
-
 export const mockProgress: any[] = [];

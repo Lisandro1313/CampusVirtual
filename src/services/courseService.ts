@@ -1,4 +1,43 @@
-import { Course, Lesson, Enrollment } from '../lib/supabase';
+interface Course {
+  id: string;
+  title: string;
+  short_description: string;
+  description: string;
+  category: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  price: number;
+  tags: string[];
+  image_url: string;
+  featured: boolean;
+  instructor_id: string;
+  instructor_name: string;
+  lessons: Lesson[];
+  created_at: string;
+  updated_at: string;
+  enrollments_count: number;
+}
+
+interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  duration_minutes: number;
+  content_type: 'video' | 'pdf' | 'link' | 'text';
+  video_url: string;
+  file_url: string;
+  order_index: number;
+  is_free: boolean;
+}
+
+interface Enrollment {
+  id: string;
+  user_id: string;
+  course_id: string;
+  enrolled_at: string;
+  progress: number;
+  completed: boolean;
+  payment_status: 'pending' | 'completed' | 'failed';
+}
 
 class CourseService {
   private getCoursesFromStorage(): Course[] {
@@ -10,6 +49,15 @@ class CourseService {
     localStorage.setItem('campus-courses', JSON.stringify(courses));
   }
 
+  private getEnrollmentsFromStorage(): Enrollment[] {
+    const saved = localStorage.getItem('campus-enrollments');
+    return saved ? JSON.parse(saved) : [];
+  }
+
+  private saveEnrollmentsToStorage(enrollments: Enrollment[]): void {
+    localStorage.setItem('campus-enrollments', JSON.stringify(enrollments));
+  }
+
   async getCourses(): Promise<Course[]> {
     return this.getCoursesFromStorage();
   }
@@ -19,12 +67,26 @@ class CourseService {
     return courses.find(course => course.id === id) || null;
   }
 
-  async createCourse(courseData: Omit<Course, 'id' | 'created_at' | 'updated_at'>): Promise<Course> {
+  async createCourse(courseData: any): Promise<Course> {
     const courses = this.getCoursesFromStorage();
     
     const newCourse: Course = {
-      ...courseData,
       id: `course-${Date.now()}`,
+      title: courseData.title,
+      short_description: courseData.short_description,
+      description: courseData.description,
+      category: courseData.category,
+      level: courseData.level,
+      price: courseData.price,
+      tags: courseData.tags,
+      image_url: courseData.image_url,
+      featured: courseData.featured,
+      instructor_id: courseData.instructor_id,
+      instructor_name: courseData.instructor_name,
+      lessons: courseData.lessons.map((lesson: any, index: number) => ({
+        id: `lesson-${Date.now()}-${index}`,
+        ...lesson
+      })),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       enrollments_count: 0
@@ -36,39 +98,40 @@ class CourseService {
     return newCourse;
   }
 
-  async getLessons(courseId: string): Promise<Lesson[]> {
-    const saved = localStorage.getItem(`lessons-${courseId}`);
-    return saved ? JSON.parse(saved) : [];
-  }
-
-  async createLesson(lessonData: Omit<Lesson, 'id' | 'created_at' | 'updated_at'>): Promise<Lesson> {
-    const lessons = await this.getLessons(lessonData.course_id);
+  async enrollInCourse(courseId: string, userId: string): Promise<void> {
+    const enrollments = this.getEnrollmentsFromStorage();
     
-    const newLesson: Lesson = {
-      ...lessonData,
-      id: `lesson-${Date.now()}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+    const newEnrollment: Enrollment = {
+      id: `enrollment-${Date.now()}`,
+      user_id: userId,
+      course_id: courseId,
+      enrolled_at: new Date().toISOString(),
+      progress: 0,
+      completed: false,
+      payment_status: 'completed'
     };
     
-    lessons.push(newLesson);
-    localStorage.setItem(`lessons-${lessonData.course_id}`, JSON.stringify(lessons));
+    enrollments.push(newEnrollment);
+    this.saveEnrollmentsToStorage(enrollments);
+  }
+
+  async getUserEnrollments(userId: string): Promise<any[]> {
+    const enrollments = this.getEnrollmentsFromStorage();
+    const courses = this.getCoursesFromStorage();
     
-    return newLesson;
+    return enrollments
+      .filter(enrollment => enrollment.user_id === userId)
+      .map(enrollment => {
+        const course = courses.find(c => c.id === enrollment.course_id);
+        return {
+          ...enrollment,
+          course
+        };
+      });
   }
 
-  async enrollInCourse(courseId: string, userId: string): Promise<void> {
-    // Mock enrollment
-    console.log('Enrolled user', userId, 'in course', courseId);
-  }
-
-  async getUserEnrollments(userId: string): Promise<Enrollment[]> {
-    const saved = localStorage.getItem(`enrollments-${userId}`);
-    return saved ? JSON.parse(saved) : [];
-  }
-
-  async updateLessonProgress(userId: string, lessonId: string, completed: boolean, watchTime: number): Promise<void> {
-    console.log('Updated lesson progress:', lessonId, completed);
+  async updateLessonProgress(userId: string, lessonId: string, completed: boolean): Promise<void> {
+    console.log('Lesson progress updated:', lessonId, completed);
   }
 }
 

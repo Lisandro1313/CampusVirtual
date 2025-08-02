@@ -29,11 +29,11 @@ export const StudentDashboard: React.FC = () => {
     }
   };
 
-  // Calculate stats
+  // Calculate real stats from actual enrollments
   const totalCourses = enrollments.length;
   const completedCourses = enrollments.filter(e => e.completed).length;
   const averageProgress = enrollments.reduce((acc, e) => acc + e.progress, 0) / totalCourses || 0;
-  const totalHours = Math.round(averageProgress * totalCourses * 0.75);
+  const totalHours = Math.round(averageProgress * totalCourses * 0.75); // Estimate based on real progress
 
   if (loading) {
     return (

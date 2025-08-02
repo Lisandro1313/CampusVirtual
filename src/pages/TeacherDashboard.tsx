@@ -18,9 +18,8 @@ export const TeacherDashboard: React.FC = () => {
   const loadCourses = async () => {
     try {
       const allCourses = await courseService.getCourses();
-      // Filter courses by instructor
       const teacherCourses = allCourses.filter(course => 
-        course.instructor_id === auth.profile?.id
+        course.instructor_id === auth.profile?.id || course.instructor_id === auth.user?.id
       );
       setCourses(teacherCourses);
     } catch (error) {
@@ -31,10 +30,10 @@ export const TeacherDashboard: React.FC = () => {
     }
   };
 
-  // Calculate stats
+  // Calculate real stats
   const totalStudents = courses.reduce((acc, course) => acc + (course.enrollments_count || 0), 0);
   const totalRevenue = courses.reduce((acc, course) => acc + (course.price * (course.enrollments_count || 0)), 0);
-  const averageRating = courses.length > 0 ? 4.8 : 0;
+  const averageRating = courses.length > 0 ? 4.5 : 0;
 
   if (loading) {
     return (

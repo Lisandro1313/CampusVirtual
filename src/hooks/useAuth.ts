@@ -81,7 +81,6 @@ export const useAuthState = () => {
   }, []);
 
   const createEmptyProfile = (user: User): Profile => {
-    // Get saved profile from localStorage or create empty one
     const savedProfile = localStorage.getItem(`profile-${user.id}`);
     if (savedProfile) {
       return JSON.parse(savedProfile);
@@ -105,7 +104,6 @@ export const useAuthState = () => {
       updated_at: new Date().toISOString()
     };
 
-    // Save to localStorage
     localStorage.setItem(`profile-${user.id}`, JSON.stringify(emptyProfile));
     return emptyProfile;
   };
@@ -157,7 +155,6 @@ export const useAuthState = () => {
 
     const updatedProfile = { ...auth.profile, ...updates };
     
-    // Save to localStorage
     localStorage.setItem(`profile-${auth.user.id}`, JSON.stringify(updatedProfile));
     
     setAuth(prev => ({
