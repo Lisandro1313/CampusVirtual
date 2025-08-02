@@ -218,6 +218,7 @@ export const About: React.FC = () => {
             </Link>
           </div>
         </div>
+      </section>
     </div>
   );
 };
