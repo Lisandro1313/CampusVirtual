@@ -145,6 +145,7 @@ export const useAuthState = () => {
     if (!supabase) return null;
     
     try {
+    }
     console.log('📋 Fetching profile for user:', userId);
     
     // Create timeout promise
