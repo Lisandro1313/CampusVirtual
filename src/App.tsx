@@ -47,7 +47,8 @@ const DashboardRouter: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  switch (auth.user?.role) {
+  // Usar el rol del perfil, no del user
+  switch (auth.profile?.role) {
     case 'teacher':
       return <TeacherDashboard />;
     case 'admin':

@@ -64,38 +64,10 @@ export const Login: React.FC = () => {
 
         {/* Demo Users */}
         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6">
-          <h3 className="text-white font-semibold mb-3 text-center">👥 Usuarios de Prueba</h3>
-          <div className="mb-3 p-2 bg-blue-600/20 rounded-lg">
-            <p className="text-blue-200 text-xs text-center">
-              💡 Estos usuarios funcionan en modo demo si no están configurados en Supabase
-            </p>
-          </div>
-          <div className="space-y-2">
-            {demoUsers.map((user, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setEmail(user.email);
-                  setPassword(user.password);
-                }}
-                className="w-full text-left bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors"
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-white font-medium">{user.role}</p>
-                    <p className="text-blue-200 text-sm">{user.email}</p>
-                    <p className="text-blue-300 text-xs">{user.description}</p>
-                  </div>
-                  <span className="text-blue-300 text-xs">Click para usar</span>
-                </div>
-              </button>
-            ))}
-          </div>
-          <div className="mt-3 p-2 bg-blue-600/20 rounded-lg">
-            <p className="text-blue-200 text-xs text-center">
-              💡 Los estudiantes se registran usando el formulario de registro
-            </p>
-          </div>
+          <h3 className="text-white font-semibold mb-2 text-center">🚀 Sistema de Producción</h3>
+          <p className="text-blue-200 text-sm text-center">
+            Usa tus credenciales reales de Supabase para acceder al sistema.
+          </p>
         </div>
 
         <form className="bg-white rounded-2xl shadow-2xl p-8 space-y-6" onSubmit={handleSubmit}>

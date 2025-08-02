@@ -114,136 +114,31 @@ export const useAuthState = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      // If Supabase is not configured, use demo mode immediately
       if (!supabase) {
-        return handleDemoLogin(email, password);
+        throw new Error('Supabase no está configurado. Por favor configura las variables de entorno.');
       }
 
-      // Try Supabase authentication, but fallback to demo mode on any error
+      // Autenticación real con Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        // If it's an invalid credentials error, try demo mode
-        if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
-          console.warn('Supabase user not found, trying demo mode:', error.message);
-          return handleDemoLogin(email, password);
-        }
         throw error;
       }
 
     } catch (error) {
-      console.warn('Supabase authentication failed, falling back to demo mode:', error);
-      return handleDemoLogin(email, password);
-    }
-  };
-
-  const handleDemoLogin = (email: string, password: string) => {
-    if (email === 'admin@esfd.com' && password === 'admin123') {
-      const adminUser = {
-        id: 'admin-1',
-        name: 'Administrador E.S.FD',
-        email: 'admin@esfd.com',
-        role: 'admin',
-        avatar_url: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      localStorage.setItem('demo-user', JSON.stringify(adminUser));
-      setAuth({
-        user: { id: adminUser.id, email: adminUser.email } as User,
-        profile: adminUser,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      return;
-    }
-    
-    if (email === 'norma@esfd.com' && password === 'norma123') {
-      const teacherUser = {
-        id: 'teacher-1',
-        name: 'Norma Skuletich',
-        email: 'norma@esfd.com',
-        role: 'teacher',
-        bio: 'Magister en Educación. Directora de E.S.FD con más de 15 años de experiencia en formación docente.',
-        phone: '1121673242',
-        location: 'Calle 102 n 735, Punta Lara',
-        avatar_url: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      localStorage.setItem('demo-user', JSON.stringify(teacherUser));
-      setAuth({
-        user: { id: teacherUser.id, email: teacherUser.email } as User,
-        profile: teacherUser,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-      return;
-    }
-    
-    throw new Error('Credenciales incorrectas');
-  };
-
-  const createDemoUser = async (email: string, password: string, name: string, role: 'admin' | 'teacher') => {
-    if (!supabase) return;
-
-    try {
-      // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-            role
-          }
-        }
-      });
-
-      if (authError) throw authError;
-
-      // Create profile in database
-      if (authData.user) {
-        const profileData = {
-          id: authData.user.id,
-          name,
-          email,
-          role,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          avatar_url: role === 'admin' 
-            ? 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'
-            : 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-          bio: role === 'teacher' ? 'Magister en Educación. Directora de E.S.FD con más de 15 años de experiencia en formación docente.' : undefined,
-          phone: role === 'teacher' ? '1121673242' : undefined,
-          location: role === 'teacher' ? 'Calle 102 n 735, Punta Lara' : undefined
-        };
-
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([profileData]);
-
-        if (profileError) {
-          console.warn('Profile creation failed:', profileError);
-        }
-      }
-    } catch (error) {
-      console.warn('Demo user creation failed:', error);
       throw error;
     }
   };
 
   const signUp = async (email: string, password: string, name: string, phone?: string) => {
     try {
-      // If Supabase is not configured, use demo mode
       if (!supabase) {
-        return handleDemoSignup(email, password, name, phone);
+        throw new Error('Supabase no está configurado. Por favor configura las variables de entorno.');
       }
 
-      // Try Supabase signup
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -258,34 +153,9 @@ export const useAuthState = () => {
 
       if (error) throw error;
 
-      // If signup successful, user will be logged in automatically
-      // The auth state change listener will handle profile creation
-
     } catch (error) {
-      console.warn('Supabase signup failed, using demo mode:', error);
-      return handleDemoSignup(email, password, name, phone);
+      throw error;
     }
-  };
-
-  const handleDemoSignup = (email: string, password: string, name: string, phone?: string) => {
-    // Demo mode - create student
-    const newUser = {
-      id: `student-${Date.now()}`,
-      name,
-      email,
-      role: 'student' as const,
-      phone,
-      avatar_url: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    localStorage.setItem('demo-user', JSON.stringify(newUser));
-    setAuth({
-      user: { id: newUser.id, email: newUser.email } as User,
-      profile: newUser,
-      isAuthenticated: true,
-      isLoading: false,
-    });
   };
 
   const createProfileIfNeeded = async (user: User, userData?: any) => {
@@ -310,9 +180,6 @@ export const useAuthState = () => {
         email: user.email || '',
         role: userData?.role || user.user_metadata?.role || 'student',
         phone: userData?.phone || user.user_metadata?.phone,
-        avatar_url: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
       };
 
       const { data: newProfile, error } = await supabase
@@ -323,15 +190,7 @@ export const useAuthState = () => {
 
       if (error) {
         console.warn('Profile creation failed:', error);
-        // Return a basic profile structure even if database insert fails
-        return {
-          id: user.id,
-          name,
-          email: user.email || '',
-          role: 'student' as const,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
+        return null;
       }
 
       return newProfile;
@@ -344,14 +203,7 @@ export const useAuthState = () => {
 
   const signOut = async () => {
     if (!supabase) {
-      localStorage.removeItem('demo-user');
-      setAuth({
-        user: null,
-        profile: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
-      return;
+      throw new Error('Supabase no está configurado');
     }
 
     const { error } = await supabase.auth.signOut();
@@ -362,12 +214,7 @@ export const useAuthState = () => {
     if (!auth.user) throw new Error('No user logged in');
 
     if (!supabase) {
-      // Demo mode
-      const currentUser = JSON.parse(localStorage.getItem('demo-user') || '{}');
-      const updatedUser = { ...currentUser, ...updates };
-      localStorage.setItem('demo-user', JSON.stringify(updatedUser));
-      setAuth(prev => ({ ...prev, profile: updatedUser }));
-      return;
+      throw new Error('Supabase no está configurado');
     }
 
     const { error } = await supabase
