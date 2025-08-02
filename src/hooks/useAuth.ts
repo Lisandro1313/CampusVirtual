@@ -145,53 +145,64 @@ export const useAuthState = () => {
     if (!supabase) return null;
     
     try {
-      console.log('📋 Fetching profile for user:', userId);
+    console.log('📋 Fetching profile for user:', userId);
+    
+    // Create timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Query timeout after 3 seconds')), 3000);
+    });
+    
+    try {
+      console.log('⏳ Attempting direct profile query with 3s timeout...');
       
-      // Try direct query first
-      console.log('⏳ Attempting direct profile query...');
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single();
-        
-        if (data && !error) {
-          console.log('✅ Profile found by ID:', data.name, data.role);
-          return data;
-        }
-        
-        console.log('❌ Profile not found by ID, error:', error?.message);
-      } catch (directError) {
-        console.log('❌ Direct query failed:', directError);
+      const queryPromise = supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+      
+      if (data && !error) {
+        console.log('✅ Profile found by ID:', data.name, data.role);
+        return data;
       }
       
-      // Try email fallback
-      console.log('🔄 Trying email fallback...');
-      try { 
-        console.log('🔄 Direct query failed, trying email fallback...');
-        
-        // Get user email for fallback
-        const { data: { user } } = await supabase.auth.getUser();
-          
-          const { data: profileByEmail, error: emailError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('email', user.email)
-            .single();
-            
-          if (profileByEmail && !emailError) {
-            console.log('✅ Found profile by email:', profileByEmail.name, profileByEmail.role);
-            return profileByEmail;
-          }
-          
-          console.log('❌ Email query failed:', emailError?.message);
-      } catch (emailError) {
-        console.log('❌ Email query also failed:', emailError);
+      console.log('❌ Profile not found by ID, error:', error?.message);
+    } catch (directError) {
+      console.log('❌ Direct query failed or timed out:', directError);
+    }
+    
+    // Try email fallback with timeout
+    try {
+      console.log('🔄 Trying email fallback with timeout...');
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const emailQueryPromise = supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', user?.email)
+        .single();
+      
+      const { data: profileByEmail, error: emailError } = await Promise.race([
+        emailQueryPromise, 
+        timeoutPromise
+      ]);
+      
+      if (profileByEmail && !emailError) {
+        console.log('✅ Found profile by email:', profileByEmail.name, profileByEmail.role);
+        return profileByEmail;
       }
       
-      // If all else fails, return a mock profile to unblock the user
-      console.log('🚨 All queries failed, creating mock profile to unblock user');
+      console.log('❌ Email query failed:', emailError?.message);
+    } catch (emailError) {
+      console.log('❌ Email query also failed or timed out:', emailError);
+    }
+    
+    // Create emergency fallback profile
+    console.log('🆘 Creating emergency fallback profile');
+    try {
       const { data: { user } } = await supabase.auth.getUser();
       
       const mockProfile: Profile = {
@@ -203,24 +214,11 @@ export const useAuthState = () => {
         updated_at: new Date().toISOString()
       };
       
-      console.log('🎭 Using mock profile:', mockProfile);
+      console.log('🎭 Using emergency profile:', mockProfile);
       return mockProfile;
-      
-    } catch (error) {
-      console.error('💥 Unexpected error in fetchProfile:', error);
-      
-      // Even if everything fails, create a basic profile to unblock the user
-      console.log('🆘 Creating emergency fallback profile');
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      return {
-        id: userId,
-        name: user?.email?.split('@')[0] || 'Usuario',
-        email: user?.email || '',
-        role: 'student',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      } as Profile;
+    } catch (fallbackError) {
+      console.log('💥 Even fallback failed:', fallbackError);
+      return null;
     }
   };
 
