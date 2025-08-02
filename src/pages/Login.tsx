@@ -22,7 +22,7 @@ export const Login: React.FC = () => {
     try {
       await signIn(email, password);
       console.log('🎯 Sign in completed successfully');
-      console.log('⏳ Waiting for auth state change to handle navigation...');
+      navigate('/dashboard');
     } catch (err) {
       console.error('❌ Login failed:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';

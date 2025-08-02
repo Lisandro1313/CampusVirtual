@@ -72,13 +72,6 @@ export const useAuthState = () => {
             isLoading: false,
           });
           
-          // Navigate to dashboard after successful login
-          if (event === 'SIGNED_IN') {
-            console.log('🎯 Navigating to dashboard');
-            setTimeout(() => {
-              window.location.href = '/dashboard';
-            }, 100);
-          }
         } else {
           setAuth({
             user: null,
