@@ -146,24 +146,57 @@ export const useAuthState = () => {
     
     try {
       console.log('📋 Fetching profile for user:', userId);
-      const { data, error } = await supabase
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000);
+      });
+      
+      const fetchPromise = supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
-
-      console.log('🔍 Profile query result:', { data, error });
       
+      console.log('⏳ Starting profile query with timeout...');
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
+      
+      console.log('🔍 Profile query completed:', { 
+        hasData: !!data, 
+        error: error?.message,
+        errorCode: error?.code 
+      });
       if (error) {
         console.error('❌ Error fetching profile:', error.message, error.code);
-        if (error.code === 'PGRST116') {
-          console.log('🚨 Profile not found - this is the problem!');
+        
+        // If profile not found, try to find by email
+        if (error.code === 'PGRST116' || error.message?.includes('No rows')) {
+          console.log('🔍 Profile not found by ID, trying to find by email...');
+          
+          // Get user email from auth
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user?.email) {
+            console.log('📧 Searching for profile with email:', user.email);
+            
+            const { data: profileByEmail, error: emailError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('email', user.email)
+              .single();
+              
+            if (profileByEmail && !emailError) {
+              console.log('✅ Found profile by email:', profileByEmail);
+              return profileByEmail;
+            } else {
+              console.log('❌ No profile found by email either:', emailError?.message);
+            }
+          }
         }
         return null;
       }
       
       if (!data) {
-        console.log('🚨 No profile data returned');
+        console.log('🚨 No profile data returned from query');
         return null;
       }
       
@@ -175,7 +208,29 @@ export const useAuthState = () => {
       });
       return data;
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('💥 Unexpected error in fetchProfile:', error);
+      
+      // If it's a timeout, try a simpler approach
+      if (error.message === 'Profile fetch timeout') {
+        console.log('⏰ Profile fetch timed out, trying direct approach...');
+        try {
+          const { data: allProfiles } = await supabase
+            .from('profiles')
+            .select('*')
+            .limit(10);
+          
+          console.log('📊 Available profiles:', allProfiles);
+          
+          const profile = allProfiles?.find(p => p.id === userId);
+          if (profile) {
+            console.log('🎯 Found profile in list:', profile);
+            return profile;
+          }
+        } catch (listError) {
+          console.error('❌ Even list query failed:', listError);
+        }
+      }
+      
       return null;
     }
   };
