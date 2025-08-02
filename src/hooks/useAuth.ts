@@ -160,6 +160,7 @@ export const useAuthState = () => {
           console.log('✅ Profile found by ID:', data.name, data.role);
           return data;
         }
+      }
       
       console.log('❌ Profile not found by ID, error:', error?.message);
       
