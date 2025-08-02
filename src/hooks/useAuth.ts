@@ -160,36 +160,11 @@ export const useAuthState = () => {
           console.log('✅ Profile found by ID:', data.name, data.role);
           return data;
         }
-      }
-      // Create a manual timeout for the query
-      const queryPromise = (async () => {
-        console.log('⏳ Attempting direct profile query...');
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single();
-        
-        if (data && !error) {
-          console.log('✅ Profile found by ID:', data.name, data.role);
-          return data;
-        }
-        
-        console.log('❌ Profile not found by ID, error:', error?.message);
-        throw new Error(`Profile not found: ${error?.message}`);
-      })();
       
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => {
-          console.log('⏰ Query timeout after 5 seconds');
-          reject(new Error('Query timeout'));
-        }, 5000);
-      });
+      console.log('❌ Profile not found by ID, error:', error?.message);
       
+      // Try email fallback
       try {
-        const result = await Promise.race([queryPromise, timeoutPromise]);
-        return result;
-      } catch (error) {
         console.log('🔄 Direct query failed, trying email fallback...');
         
         // Get user email for fallback
@@ -198,51 +173,38 @@ export const useAuthState = () => {
         if (user?.email) {
           console.log('📧 User email:', user.email);
           
-          // Try email query with timeout
-          const emailQueryPromise = (async () => {
-            const { data: profileByEmail, error: emailError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('email', user.email)
-              .single();
-              
-            if (profileByEmail && !emailError) {
-              console.log('✅ Found profile by email:', profileByEmail.name, profileByEmail.role);
-              return profileByEmail;
-            }
+          const { data: profileByEmail, error: emailError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', user.email)
+            .single();
             
-            throw new Error(`Email query failed: ${emailError?.message}`);
-          })();
-          
-          const emailTimeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => {
-              console.log('⏰ Email query timeout after 5 seconds');
-              reject(new Error('Email query timeout'));
-            }, 5000);
-          });
-          
-          try {
-            const emailResult = await Promise.race([emailQueryPromise, emailTimeoutPromise]);
+          if (profileByEmail && !emailError) {
+            console.log('✅ Found profile by email:', profileByEmail.name, profileByEmail.role);
             return emailResult;
-          } catch (emailError) {
-            console.log('❌ Email query also failed:', emailError);
           }
+          
+          console.log('❌ Email query failed:', emailError?.message);
         }
-        
-        // If all else fails, return a mock profile to unblock the user
-        console.log('🚨 All queries failed, creating mock profile to unblock user');
-        const mockProfile: Profile = {
-          id: userId,
-          name: user?.email?.split('@')[0] || 'Usuario',
-          email: user?.email || '',
-          role: 'student',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        console.log('🎭 Using mock profile:', mockProfile);
-        return mockProfile;
+      } catch (emailError) {
+        console.log('❌ Email query also failed:', emailError);
       }
+      
+      // If all else fails, return a mock profile to unblock the user
+      console.log('🚨 All queries failed, creating mock profile to unblock user');
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const mockProfile: Profile = {
+        id: userId,
+        name: user?.email?.split('@')[0] || 'Usuario',
+        email: user?.email || '',
+        role: 'student',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      console.log('🎭 Using mock profile:', mockProfile);
+      return mockProfile;
       
     } catch (error) {
       console.error('💥 Unexpected error in fetchProfile:', error);
