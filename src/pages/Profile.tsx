@@ -38,10 +38,6 @@ export const Profile: React.FC = () => {
     setIsEditing(false);
   };
 
-  const handleImageUpload = () => {
-    alert('Funcionalidad de subir imagen será implementada próximamente');
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,12 +45,6 @@ export const Profile: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
           {/* Cover Photo */}
           <div className="h-32 bg-gradient-to-r from-blue-600 to-purple-600 relative">
-            <button 
-              onClick={handleImageUpload}
-              className="absolute top-4 right-4 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-lg transition-colors"
-            >
-              <Camera className="h-4 w-4" />
-            </button>
           </div>
 
           {/* Profile Info */}
@@ -63,16 +53,10 @@ export const Profile: React.FC = () => {
               <div className="flex items-end space-x-6">
                 <div className="relative">
                   <img
-                    src={auth.profile?.avatar_url || '/src/assets/Imagen de WhatsApp 2025-07-10 a las 15.54.58_bc651df1.jpg'}
+                    src={auth.profile?.avatar_url || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
                     alt={auth.profile?.name || 'Usuario'}
                     className="w-32 h-32 rounded-2xl border-4 border-white shadow-lg object-cover"
                   />
-                  <button 
-                    onClick={handleImageUpload}
-                    className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors"
-                  >
-                    <Camera className="h-4 w-4" />
-                  </button>
                 </div>
                 <div className="pb-4">
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -113,6 +97,60 @@ export const Profile: React.FC = () => {
               )}
             </div>
 
+            {/* Editable Fields */}
+            {isEditing && (
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                  <input
+                    type="text"
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Tu número de teléfono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ubicación</label>
+                  <input
+                    type="text"
+                    value={editForm.location}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Tu ubicación"
+                  />
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handleSave}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Guardar
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Stats - REALES */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center p-4 bg-blue-50 rounded-xl">
@@ -135,121 +173,6 @@ export const Profile: React.FC = () => {
                 <div className="text-2xl font-bold text-orange-900">$0</div>
                 <div className="text-sm text-orange-700">Ingresos</div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Personal Information */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Información Personal</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={editForm.name}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-900">{auth.profile?.name || 'No especificado'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <p className="text-gray-900">{auth.profile?.email}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={editForm.phone}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Tu número de teléfono"
-                  />
-                ) : (
-                  <p className="text-gray-900">{auth.profile?.phone || 'No especificado'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ubicación</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={editForm.location}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Tu ubicación"
-                  />
-                ) : (
-                  <p className="text-gray-900">{auth.profile?.location || 'No especificado'}</p>
-                )}
-              </div>
-            </div>
-
-            {isEditing && (
-              <div className="flex space-x-3 mt-6">
-                <button
-                  onClick={handleSave}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Guardar
-                </button>
-                <button
-                  onClick={handleCancel}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Cancelar
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Role Info */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Información del Rol</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rol</label>
-                <p className="text-gray-900 capitalize">
-                  {auth.profile?.role === 'teacher' ? 'Docente' : 
-                   auth.profile?.role === 'student' ? 'Estudiante' : 
-                   auth.profile?.role === 'admin' ? 'Administrador' : 'Usuario'}
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Miembro desde</label>
-                <p className="text-gray-900">
-                  {new Date(auth.profile?.created_at || '').toLocaleDateString()}
-                </p>
-              </div>
-
-              {auth.profile?.role === 'teacher' && (
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 mb-2">Panel de Instructor</h4>
-                  <p className="text-sm text-blue-800 mb-3">
-                    Como docente, podés crear cursos, gestionar estudiantes y ver analíticas.
-                  </p>
-                  <button
-                    onClick={() => window.location.href = '/dashboard'}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Ir al Dashboard
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>

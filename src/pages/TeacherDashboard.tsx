@@ -33,7 +33,7 @@ export const TeacherDashboard: React.FC = () => {
 
   const handleCreateCourse = () => {
     console.log('🎯 Navigating to create course...');
-    navigate('/teacher/course/new');
+    navigate('/new-course');
   };
 
   // Calculate REAL stats from actual courses
@@ -66,7 +66,7 @@ export const TeacherDashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
               <img
-                src={auth.profile?.avatar_url || '/src/assets/Imagen de WhatsApp 2025-07-10 a las 15.54.58_bc651df1.jpg'}
+                src={auth.profile?.avatar_url || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
                 alt={auth.profile?.name || 'Usuario'}
                 className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
               />
@@ -74,7 +74,7 @@ export const TeacherDashboard: React.FC = () => {
                 <h1 className="text-3xl font-bold text-gray-900">
                   Panel de Instructor
                 </h1>
-                <p className="text-gray-600">Bienvenido, {auth.profile?.name || 'Instructor'}</p>
+                <p className="text-gray-600">Bienvenido, {auth.profile?.name || auth.profile?.email?.split('@')[0] || 'Instructor'}</p>
               </div>
             </div>
             <button
@@ -330,12 +330,12 @@ export const TeacherDashboard: React.FC = () => {
                   <div className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center space-x-6 mb-6">
                       <img
-                        src={auth.profile?.avatar_url || '/src/assets/Imagen de WhatsApp 2025-07-10 a las 15.54.58_bc651df1.jpg'}
+                        src={auth.profile?.avatar_url || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
                         alt={auth.profile?.name || 'Usuario'}
                         className="w-20 h-20 rounded-full object-cover"
                       />
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-900">{auth.profile?.name || 'Usuario'}</h3>
+                        <h3 className="text-xl font-semibold text-gray-900">{auth.profile?.name || auth.profile?.email?.split('@')[0] || 'Usuario'}</h3>
                         <p className="text-gray-600">{auth.profile?.email}</p>
                         <p className="text-sm text-gray-500">
                           Instructor desde {new Date(auth.profile?.created_at || '').toLocaleDateString()}
@@ -374,7 +374,6 @@ export const TeacherDashboard: React.FC = () => {
               </div>
             )}
 
-            {/* Otros tabs... */}
             {activeTab === 'announcements' && (
               <div>
                 <div className="flex justify-between items-center mb-6">

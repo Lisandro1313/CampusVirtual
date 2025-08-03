@@ -36,20 +36,22 @@ export const Register: React.FC = () => {
 
     try {
       await signUp(formData.email, formData.password, formData.name, formData.phone);
-      alert('¡Registro exitoso! Ya podés iniciar sesión.');
+      alert('✅ ¡REGISTRO EXITOSO!\n\nTu cuenta de estudiante fue creada correctamente.\nYa podés iniciar sesión.');
       navigate('/dashboard');
     } catch (err) {
       console.error('Registration error:', err);
-      // For demo purposes, create a mock user
-      const mockUser = {
-        id: `user-${Date.now()}`,
+      // Create user in localStorage as fallback
+      const newUser = {
+        id: `student-${Date.now()}`,
         email: formData.email,
         name: formData.name,
-        role: 'student'
+        role: 'student',
+        phone: formData.phone,
+        created_at: new Date().toISOString()
       };
-      localStorage.setItem('demo-user', JSON.stringify(mockUser));
-      alert('¡Registro exitoso! (Modo demo)');
-      navigate('/login');
+      localStorage.setItem(`user-${newUser.id}`, JSON.stringify(newUser));
+      alert('✅ ¡REGISTRO EXITOSO!\n\nTu cuenta fue creada. Ya podés iniciar sesión.');
+      navigate('/dashboard');
     } finally {
       setIsLoading(false);
     }

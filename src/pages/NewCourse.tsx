@@ -4,8 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { courseService } from '../services/courseService';
 
-import { Course, Lesson } from '../lib/supabase';
-
 export const NewCourse: React.FC = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
@@ -22,13 +20,13 @@ export const NewCourse: React.FC = () => {
     featured: false
   });
 
-  const [lessons, setLessons] = useState<Omit<Lesson, 'id' | 'course_id' | 'created_at' | 'updated_at'>[]>([]);
+  const [lessons, setLessons] = useState([]);
   const [newTag, setNewTag] = useState('');
   const [newLesson, setNewLesson] = useState({
     title: '',
     description: '',
     duration_minutes: 0,
-    content_type: 'video' as const,
+    content_type: 'video',
     video_url: '',
     file_url: '',
     order_index: 0,
@@ -52,7 +50,7 @@ export const NewCourse: React.FC = () => {
     }
   };
 
-  const removeTag = (tag: string) => {
+  const removeTag = (tag) => {
     setCourseData(prev => ({
       ...prev,
       tags: prev.tags.filter(t => t !== tag)
@@ -79,11 +77,11 @@ export const NewCourse: React.FC = () => {
     }
   };
 
-  const removeLesson = (index: number) => {
+  const removeLesson = (index) => {
     setLessons(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -99,20 +97,13 @@ export const NewCourse: React.FC = () => {
       await courseService.createCourse(courseWithLessons);
       
       alert('¡Curso creado exitosamente!');
-
-      setIsSubmitting(false);
       navigate('/dashboard');
     } catch (error) {
       console.error('Error creating course:', error);
       alert('Error al crear el curso. Intenta nuevamente.');
+    } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handlePreview = () => {
-    // Store preview data temporarily
-    localStorage.setItem('course-preview', JSON.stringify(courseData));
-    window.open('/course/preview', '_blank');
   };
 
   return (
@@ -130,16 +121,6 @@ export const NewCourse: React.FC = () => {
             </Link>
             <h1 className="text-3xl font-bold text-gray-900">Crear Nuevo Curso</h1>
             <p className="text-gray-600">Comparte tu conocimiento con el mundo</p>
-          </div>
-          
-          <div className="flex space-x-3">
-            <button
-              onClick={handlePreview}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Vista Previa
-            </button>
           </div>
         </div>
 
@@ -214,7 +195,7 @@ export const NewCourse: React.FC = () => {
                 <select
                   required
                   value={courseData.level}
-                  onChange={(e) => setCourseData(prev => ({ ...prev, level: e.target.value as any }))}
+                  onChange={(e) => setCourseData(prev => ({ ...prev, level: e.target.value }))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="beginner">Principiante</option>
@@ -225,7 +206,7 @@ export const NewCourse: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Precio (USD) *
+                  Precio (ARS) *
                 </label>
                 <input
                   type="number"
@@ -236,6 +217,19 @@ export const NewCourse: React.FC = () => {
                   onChange={(e) => setCourseData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="15000"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  URL de Imagen de Portada
+                </label>
+                <input
+                  type="url"
+                  value={courseData.image_url}
+                  onChange={(e) => setCourseData(prev => ({ ...prev, image_url: e.target.value }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://ejemplo.com/imagen.jpg"
                 />
               </div>
             </div>
@@ -309,6 +303,7 @@ export const NewCourse: React.FC = () => {
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
                         <span>Tipo: {lesson.content_type === 'video' ? 'Video' : lesson.content_type === 'pdf' ? 'PDF' : 'Enlace'}</span>
                         <span>Duración: {lesson.duration_minutes} min</span>
+                        {lesson.video_url && <span>Video: {lesson.video_url}</span>}
                       </div>
                     </div>
                     <button
@@ -360,12 +355,13 @@ export const NewCourse: React.FC = () => {
                     </label>
                     <select
                       value={newLesson.content_type}
-                      onChange={(e) => setNewLesson(prev => ({ ...prev, content_type: e.target.value as any }))}
+                      onChange={(e) => setNewLesson(prev => ({ ...prev, content_type: e.target.value }))}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="video">Video</option>
                       <option value="pdf">PDF</option>
                       <option value="link">Enlace</option>
+                      <option value="text">Texto</option>
                     </select>
                   </div>
 
@@ -386,7 +382,7 @@ export const NewCourse: React.FC = () => {
                   {newLesson.content_type === 'video' && (
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        URL del Video
+                        URL del Video (YouTube, Vimeo, etc.)
                       </label>
                       <input
                         type="url"

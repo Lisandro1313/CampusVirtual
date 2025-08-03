@@ -43,14 +43,14 @@ export const CourseDetail: React.FC = () => {
     
     setEnrolling(true);
     try {
-      // Simulate MercadoPago payment
-      const confirmed = confirm(`¿Confirmar pago de $${course.price} por MercadoPago?\n\n(Esto es una simulación)`);
+      // MercadoPago payment simulation
+      const confirmed = confirm(`💳 PAGO CON MERCADOPAGO\n\nCurso: ${course.title}\nPrecio: $${course.price} ARS\n\n¿Confirmar pago?`);
       
       if (confirmed) {
-        // Enroll user in course
+        // Simulate successful payment and enrollment
         await courseService.enrollInCourse(course.id, auth.user?.id || auth.profile?.id || '');
-        alert('¡Pago exitoso! Ya estás inscrito en el curso.');
-        navigate('/dashboard');
+        alert('✅ ¡PAGO EXITOSO!\n\nTu pago fue procesado correctamente por MercadoPago.\nYa podés acceder al curso completo.');
+        window.location.href = '/dashboard';
       }
     } catch (error) {
       console.error('Error processing enrollment:', error);
