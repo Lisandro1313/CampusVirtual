@@ -34,36 +34,16 @@ export const Register: React.FC = () => {
 
     setIsLoading(true);
 
-    console.log('📝 Register form submitted for:', formData.email);
-
     try {
       await signUp(formData.email, formData.password, formData.name, formData.phone);
-      console.log('🎯 Sign up completed successfully');
-      // Después del registro exitoso, hacer login automático
-      await signIn(formData.email, formData.password);
-      navigate('/dashboard');
+      alert('✅ ¡REGISTRO EXITOSO!\n\nTu cuenta fue creada correctamente.');
       navigate('/dashboard');
     } catch (err) {
       console.error('❌ Registration failed:', err);
-      console.error('Registration error:', err);
-      // Create user in localStorage as fallback
-      const newUser = {
-        id: `student-${Date.now()}`,
-        email: formData.email,
-        name: formData.name,
-        role: 'student',
-        phone: formData.phone,
-        created_at: new Date().toISOString()
-      };
-      localStorage.setItem(`user-${newUser.id}`, JSON.stringify(newUser));
-      alert('✅ ¡REGISTRO EXITOSO!\n\nTu cuenta fue creada. Ya podés iniciar sesión.');
-      navigate('/dashboard');
+      setError(err instanceof Error ? err.message : 'Error al crear la cuenta');
     } finally {
       setIsLoading(false);
-      setIsLoading(false);
     }
-    
-    console.log('🏁 Registration process finished');
   };
 
   return (
@@ -71,11 +51,6 @@ export const Register: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
-            <img 
-              src="/src/assets/Imagen de WhatsApp 2025-07-10 a las 15.54.58_bc651df1.jpg" 
-              alt="E.S.FD Logo" 
-              className="h-12 w-12 rounded-lg object-cover"
-            />
             <span className="text-3xl font-bold text-white">E.S.FD</span>
           </Link>
           <h2 className="text-3xl font-bold text-white mb-2">
@@ -83,13 +58,6 @@ export const Register: React.FC = () => {
           </h2>
           <p className="text-blue-200">
             Únete a nuestra comunidad de formación docente
-          </p>
-        </div>
-
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6">
-          <h3 className="text-white font-semibold mb-2 text-center">📚 Solo para Estudiantes</h3>
-          <p className="text-blue-200 text-sm text-center">
-            Este formulario es exclusivo para estudiantes. Los docentes son agregados por el administrador.
           </p>
         </div>
 
@@ -207,26 +175,6 @@ export const Register: React.FC = () => {
                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
-          </div>
-
-          <div className="flex items-center">
-            <input
-              id="terms"
-              name="terms"
-              type="checkbox"
-              required
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-              Acepto los{' '}
-              <Link to="/terms" className="text-blue-600 hover:text-blue-500">
-                términos y condiciones
-              </Link>{' '}
-              y la{' '}
-              <Link to="/privacy" className="text-blue-600 hover:text-blue-500">
-                política de privacidad
-              </Link>
-            </label>
           </div>
 
           <button

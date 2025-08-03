@@ -1,53 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Users, DollarSign, TrendingUp, Plus, Edit, Eye, BarChart3, Settings, Megaphone } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { courseService } from '../services/courseService';
-import { Course } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 
 export const TeacherDashboard: React.FC = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    loadCourses();
-  }, []);
-
-  const loadCourses = async () => {
-    try {
-      const allCourses = await courseService.getCourses();
-      const teacherCourses = allCourses.filter(course => 
-        course.instructor_id === auth.profile?.id || course.instructor_id === auth.user?.id
-      );
-      setCourses(teacherCourses);
-    } catch (error) {
-      console.error('Error loading courses:', error);
-      setCourses([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Cargar cursos del localStorage
+    const savedCourses = localStorage.getItem('courses') || '[]';
+    const allCourses = JSON.parse(savedCourses);
+    const teacherCourses = allCourses.filter(course => course.instructor_id === auth.user?.id);
+    setCourses(teacherCourses);
+  }, [auth.user?.id]);
 
   const handleCreateCourse = () => {
-    console.log('🎯 Navigating to create course...');
+    console.log('🎯 Navegando a crear curso...');
     navigate('/new-course');
   };
-
-  // Calculate REAL stats from actual courses
-  const totalStudents = courses.reduce((acc, course) => acc + (course.enrollments_count || 0), 0);
-  const totalRevenue = courses.reduce((acc, course) => acc + (course.price * (course.enrollments_count || 0)), 0);
-  const averageRating = courses.length > 0 ? 4.5 : 0;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
 
   const tabs = [
     { id: 'overview', label: 'Resumen', icon: BarChart3 },
@@ -66,15 +39,15 @@ export const TeacherDashboard: React.FC = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
               <img
-                src={auth.profile?.avatar_url || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
-                alt={auth.profile?.name || 'Usuario'}
+                src={auth.user?.avatar || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
+                alt={auth.user?.name || 'Usuario'}
                 className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
               />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   Panel de Instructor
                 </h1>
-                <p className="text-gray-600">Bienvenido, {auth.profile?.name || auth.profile?.email?.split('@')[0] || 'Instructor'}</p>
+                <p className="text-gray-600">Bienvenido, {auth.user?.name || 'Instructor'}</p>
               </div>
             </div>
             <button
@@ -86,7 +59,7 @@ export const TeacherDashboard: React.FC = () => {
             </button>
           </div>
 
-          {/* Stats Cards - REALES */}
+          {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between">
@@ -104,7 +77,7 @@ export const TeacherDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Estudiantes</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalStudents}</p>
+                  <p className="text-2xl font-bold text-gray-900">0</p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                   <Users className="h-6 w-6 text-green-600" />
@@ -116,7 +89,7 @@ export const TeacherDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Ingresos Totales</p>
-                  <p className="text-2xl font-bold text-gray-900">${totalRevenue}</p>
+                  <p className="text-2xl font-bold text-gray-900">$0</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                   <DollarSign className="h-6 w-6 text-purple-600" />
@@ -128,7 +101,7 @@ export const TeacherDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Rating Promedio</p>
-                  <p className="text-2xl font-bold text-gray-900">{averageRating.toFixed(1)}</p>
+                  <p className="text-2xl font-bold text-gray-900">0.0</p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                   <TrendingUp className="h-6 w-6 text-orange-600" />
@@ -185,12 +158,12 @@ export const TeacherDashboard: React.FC = () => {
                                   {course.title}
                                 </p>
                                 <p className="text-sm text-gray-600">
-                                  {course.enrollments_count || 0} estudiantes
+                                  0 estudiantes
                                 </p>
                               </div>
                             </div>
                             <span className="text-sm font-medium text-green-600">
-                              ${(course.price * (course.enrollments_count || 0))}
+                              ${course.price}
                             </span>
                           </div>
                         ))}
@@ -210,24 +183,22 @@ export const TeacherDashboard: React.FC = () => {
                   </div>
 
                   <div className="bg-gray-50 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Estadísticas Reales</h3>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Cursos creados</span>
-                        <span className="font-semibold text-blue-600">{courses.length}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Total estudiantes</span>
-                        <span className="font-semibold text-green-600">{totalStudents}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Ingresos totales</span>
-                        <span className="font-semibold text-green-600">${totalRevenue}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Rating promedio</span>
-                        <span className="font-semibold text-yellow-600">{averageRating.toFixed(1)} ⭐</span>
-                      </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
+                    <div className="space-y-3">
+                      <button
+                        onClick={handleCreateCourse}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-medium transition-colors flex items-center"
+                      >
+                        <Plus className="h-5 w-5 mr-2" />
+                        Crear Nuevo Curso
+                      </button>
+                      <Link
+                        to="/profile"
+                        className="w-full bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-lg font-medium transition-colors flex items-center justify-center"
+                      >
+                        <Settings className="h-5 w-5 mr-2" />
+                        Editar Mi Perfil
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -264,7 +235,7 @@ export const TeacherDashboard: React.FC = () => {
                           <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                             <div>
                               <p className="text-gray-600">Estudiantes</p>
-                              <p className="font-semibold">{course.enrollments_count || 0}</p>
+                              <p className="font-semibold">0</p>
                             </div>
                             <div>
                               <p className="text-gray-600">Precio</p>
@@ -275,28 +246,23 @@ export const TeacherDashboard: React.FC = () => {
                               <p className="font-semibold">{course.lessons?.length || 0}</p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Ingresos</p>
-                              <p className="font-semibold text-green-600">
-                                ${(course.price * (course.enrollments_count || 0))}
-                              </p>
+                              <p className="text-gray-600">Estado</p>
+                              <p className="font-semibold text-green-600">Activo</p>
                             </div>
                           </div>
 
                           <div className="flex space-x-2">
-                            <button
-                              onClick={() => navigate(`/teacher/course/${course.id}/edit`)}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-center text-sm"
-                            >
+                            <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-center text-sm">
                               <Edit className="h-4 w-4 mr-1" />
                               Editar
                             </button>
-                            <button
-                              onClick={() => navigate(`/courses/${course.id}`)}
+                            <Link
+                              to={`/courses/${course.id}`}
                               className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-center text-sm"
                             >
                               <Eye className="h-4 w-4 mr-1" />
                               Ver
-                            </button>
+                            </Link>
                           </div>
                         </div>
                       </div>
@@ -330,15 +296,15 @@ export const TeacherDashboard: React.FC = () => {
                   <div className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center space-x-6 mb-6">
                       <img
-                        src={auth.profile?.avatar_url || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
-                        alt={auth.profile?.name || 'Usuario'}
+                        src={auth.user?.avatar || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
+                        alt={auth.user?.name || 'Usuario'}
                         className="w-20 h-20 rounded-full object-cover"
                       />
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-900">{auth.profile?.name || auth.profile?.email?.split('@')[0] || 'Usuario'}</h3>
-                        <p className="text-gray-600">{auth.profile?.email}</p>
+                        <h3 className="text-xl font-semibold text-gray-900">{auth.user?.name || 'Usuario'}</h3>
+                        <p className="text-gray-600">{auth.user?.email}</p>
                         <p className="text-sm text-gray-500">
-                          Instructor desde {new Date(auth.profile?.created_at || '').toLocaleDateString()}
+                          Instructor desde {new Date(auth.user?.joinedAt || '').toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -349,7 +315,7 @@ export const TeacherDashboard: React.FC = () => {
                           Biografía
                         </label>
                         <p className="text-gray-600">
-                          {auth.profile?.bio || 'No has agregado una biografía aún.'}
+                          {auth.user?.bio || 'No has agregado una biografía aún.'}
                         </p>
                       </div>
                       <div>
@@ -357,18 +323,18 @@ export const TeacherDashboard: React.FC = () => {
                           Ubicación
                         </label>
                         <p className="text-gray-600">
-                          {auth.profile?.location || 'No especificada'}
+                          {auth.user?.location || 'No especificada'}
                         </p>
                       </div>
                     </div>
 
-                    <button 
-                      onClick={() => navigate('/profile')}
-                      className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center"
+                    <Link
+                      to="/profile"
+                      className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center inline-flex"
                     >
                       <Settings className="h-4 w-4 mr-2" />
                       Editar Perfil
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -378,13 +344,13 @@ export const TeacherDashboard: React.FC = () => {
               <div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Gestión de Anuncios</h2>
-                  <button
-                    onClick={() => navigate('/announcements/new')}
+                  <Link
+                    to="/announcements/new"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Nuevo Anuncio
-                  </button>
+                  </Link>
                 </div>
                 
                 <div className="text-center py-12">
@@ -416,17 +382,7 @@ export const TeacherDashboard: React.FC = () => {
 
             {activeTab === 'analytics' && (
               <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Analíticas</h2>
-                  <button
-                    onClick={() => navigate('/teacher/analytics')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
-                  >
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Ver Analíticas Completas
-                  </button>
-                </div>
-                
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Analíticas</h2>
                 <div className="text-center py-12">
                   <BarChart3 className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">

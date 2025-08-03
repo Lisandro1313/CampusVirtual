@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, X, Upload, Save, Eye, ArrowLeft } from 'lucide-react';
+import { Plus, X, Save, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { courseService } from '../services/courseService';
 
 export const NewCourse: React.FC = () => {
   const { auth } = useAuth();
@@ -61,6 +60,7 @@ export const NewCourse: React.FC = () => {
     if (newLesson.title.trim()) {
       setLessons(prev => [...prev, {
         ...newLesson,
+        id: `lesson-${Date.now()}`,
         order_index: prev.length
       }]);
       setNewLesson({
@@ -86,17 +86,24 @@ export const NewCourse: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Create course with lessons
-      const courseWithLessons = {
+      const newCourse = {
+        id: `course-${Date.now()}`,
         ...courseData,
-        instructor_id: auth.profile?.id || auth.user?.id || '',
-        instructor_name: auth.profile?.name || auth.user?.email?.split('@')[0] || 'Instructor',
-        lessons: lessons
+        instructor_id: auth.user?.id || '',
+        instructor_name: auth.user?.name || 'Instructor',
+        lessons: lessons,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        enrollments_count: 0
       };
       
-      await courseService.createCourse(courseWithLessons);
+      // Guardar en localStorage
+      const savedCourses = localStorage.getItem('courses') || '[]';
+      const courses = JSON.parse(savedCourses);
+      courses.push(newCourse);
+      localStorage.setItem('courses', JSON.stringify(courses));
       
-      alert('¡Curso creado exitosamente!');
+      alert('✅ ¡Curso creado exitosamente!');
       navigate('/dashboard');
     } catch (error) {
       console.error('Error creating course:', error);
@@ -304,6 +311,7 @@ export const NewCourse: React.FC = () => {
                         <span>Tipo: {lesson.content_type === 'video' ? 'Video' : lesson.content_type === 'pdf' ? 'PDF' : 'Enlace'}</span>
                         <span>Duración: {lesson.duration_minutes} min</span>
                         {lesson.video_url && <span>Video: {lesson.video_url}</span>}
+                        {lesson.is_free && <span className="text-green-600 font-medium">Gratis</span>}
                       </div>
                     </div>
                     <button
@@ -409,6 +417,21 @@ export const NewCourse: React.FC = () => {
                     </div>
                   )}
 
+                  {newLesson.content_type === 'text' && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Contenido de Texto
+                      </label>
+                      <textarea
+                        rows={5}
+                        value={newLesson.file_url}
+                        onChange={(e) => setNewLesson(prev => ({ ...prev, file_url: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Escribe el contenido de la lección aquí..."
+                      />
+                    </div>
+                  )}
+
                   <div className="md:col-span-2">
                     <label className="flex items-center space-x-2">
                       <input
@@ -452,7 +475,7 @@ export const NewCourse: React.FC = () => {
             </Link>
             <button
               type="submit"
-              disabled={isSubmitting || lessons.length === 0}
+              disabled={isSubmitting}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 disabled:transform-none flex items-center"
             >
               {isSubmitting ? (

@@ -6,10 +6,10 @@ export const Profile: React.FC = () => {
   const { auth, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
-    name: auth.profile?.name || '',
-    bio: auth.profile?.bio || '',
-    location: auth.profile?.location || '',
-    phone: auth.profile?.phone || ''
+    name: auth.user?.name || '',
+    bio: auth.user?.bio || '',
+    location: auth.user?.location || '',
+    phone: auth.user?.phone || ''
   });
 
   const handleSave = async () => {
@@ -21,7 +21,7 @@ export const Profile: React.FC = () => {
         phone: editForm.phone
       });
       setIsEditing(false);
-      alert('Perfil actualizado correctamente');
+      alert('✅ Perfil actualizado correctamente');
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Error al actualizar el perfil');
@@ -30,10 +30,10 @@ export const Profile: React.FC = () => {
 
   const handleCancel = () => {
     setEditForm({
-      name: auth.profile?.name || '',
-      bio: auth.profile?.bio || '',
-      location: auth.profile?.location || '',
-      phone: auth.profile?.phone || ''
+      name: auth.user?.name || '',
+      bio: auth.user?.bio || '',
+      location: auth.user?.location || '',
+      phone: auth.user?.phone || ''
     });
     setIsEditing(false);
   };
@@ -53,19 +53,19 @@ export const Profile: React.FC = () => {
               <div className="flex items-end space-x-6">
                 <div className="relative">
                   <img
-                    src={auth.profile?.avatar_url || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
-                    alt={auth.profile?.name || 'Usuario'}
+                    src={auth.user?.avatar || 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2'}
+                    alt={auth.user?.name || 'Usuario'}
                     className="w-32 h-32 rounded-2xl border-4 border-white shadow-lg object-cover"
                   />
                 </div>
                 <div className="pb-4">
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    {auth.profile?.name || 'Usuario'}
+                    {auth.user?.name || 'Usuario'}
                   </h1>
-                  <p className="text-gray-600 mb-2">{auth.profile?.email}</p>
+                  <p className="text-gray-600 mb-2">{auth.user?.email}</p>
                   <div className="flex items-center text-gray-500 text-sm">
                     <MapPin className="h-4 w-4 mr-1" />
-                    {auth.profile?.location || 'No especificado'}
+                    {auth.user?.location || 'No especificado'}
                   </div>
                 </div>
               </div>
@@ -92,7 +92,7 @@ export const Profile: React.FC = () => {
                 />
               ) : (
                 <p className="text-gray-700 leading-relaxed">
-                  {auth.profile?.bio || 'No has agregado una biografía aún.'}
+                  {auth.user?.bio || 'No has agregado una biografía aún.'}
                 </p>
               )}
             </div>
@@ -150,30 +150,6 @@ export const Profile: React.FC = () => {
                 </div>
               </div>
             )}
-
-            {/* Stats - REALES */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="text-center p-4 bg-blue-50 rounded-xl">
-                <BookOpen className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-blue-900">0</div>
-                <div className="text-sm text-blue-700">Cursos Creados</div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-xl">
-                <Clock className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-green-900">0h</div>
-                <div className="text-sm text-green-700">Contenido Creado</div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-xl">
-                <Award className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-purple-900">0</div>
-                <div className="text-sm text-purple-700">Estudiantes</div>
-              </div>
-              <div className="text-center p-4 bg-orange-50 rounded-xl">
-                <TrendingUp className="h-6 w-6 text-orange-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-orange-900">$0</div>
-                <div className="text-sm text-orange-700">Ingresos</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

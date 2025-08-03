@@ -12,39 +12,70 @@ export const Login: React.FC = () => {
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
+  // Crear usuarios de prueba si no existen
+  React.useEffect(() => {
+    // Usuario docente
+    if (!localStorage.getItem('user-norma@esfd.com')) {
+      const teacherUser = {
+        id: 'teacher-1',
+        name: 'Norma Skuletich',
+        email: 'norma@esfd.com',
+        role: 'teacher',
+        avatar: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+        joinedAt: new Date().toISOString(),
+        bio: 'Magister en Educación con más de 15 años de experiencia en formación docente.',
+        location: 'Punta Lara, Argentina',
+        phone: '1121673242',
+        password: 'docente123'
+      };
+      localStorage.setItem('user-norma@esfd.com', JSON.stringify(teacherUser));
+    }
+
+    // Usuario admin
+    if (!localStorage.getItem('user-admin@esfd.com')) {
+      const adminUser = {
+        id: 'admin-1',
+        name: 'Administrador',
+        email: 'admin@esfd.com',
+        role: 'admin',
+        avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
+        joinedAt: new Date().toISOString(),
+        bio: 'Administrador del sistema E.S.FD',
+        location: 'Punta Lara, Argentina',
+        phone: '1121673242',
+        password: 'admin123'
+      };
+      localStorage.setItem('user-admin@esfd.com', JSON.stringify(adminUser));
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    console.log('📝 Login form submitted for:', email);
-
     try {
       await signIn(email, password);
-      console.log('🎯 Sign in completed successfully');
       navigate('/dashboard');
     } catch (err) {
-      console.error('❌ Login failed:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';
-      setError(errorMessage);
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+    } finally {
       setIsLoading(false);
     }
-    
-    console.log('🏁 Login process finished');
   };
 
   const demoUsers = [
     { 
-      email: 'test@test.com', 
-      role: 'Administrador', 
-      password: 'test123',
-      description: 'Puede gestionar todo el sistema'
+      email: 'norma@esfd.com', 
+      role: 'Norma Skuletich (Docente)', 
+      password: 'docente123',
+      description: 'Directora y Magister en Educación'
     },
     { 
-      email: 'teacher@test.com', 
-      role: 'Norma Skuletich (Docente)', 
-      password: 'test123',
-      description: 'Directora y Magister en Educación'
+      email: 'admin@esfd.com', 
+      role: 'Administrador', 
+      password: 'admin123',
+      description: 'Puede gestionar todo el sistema'
     },
   ];
 
@@ -53,11 +84,6 @@ export const Login: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
-            <img 
-              src="/src/assets/Imagen de WhatsApp 2025-07-10 a las 15.54.58_bc651df1.jpg" 
-              alt="E.S.FD Logo" 
-              className="h-12 w-12 rounded-lg object-cover"
-            />
             <span className="text-3xl font-bold text-white">E.S.FD</span>
           </Link>
           <h2 className="text-3xl font-bold text-white mb-2">
