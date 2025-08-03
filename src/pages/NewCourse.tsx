@@ -84,24 +84,22 @@ export const NewCourse: React.FC = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    console.log('🚀 Creating course with data:', courseData);
+    console.log('📝 Lessons:', lessons);
 
     try {
-      const newCourse = {
-        id: `course-${Date.now()}`,
+      const courseToCreate = {
         ...courseData,
-        instructor_id: auth.user?.id || '',
-        instructor_name: auth.user?.name || 'Instructor',
+        instructor_id: auth.user?.id || auth.profile?.id,
         lessons: lessons,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        enrollments_count: 0
       };
       
-      // Guardar en localStorage
-      const savedCourses = localStorage.getItem('courses') || '[]';
-      const courses = JSON.parse(savedCourses);
-      courses.push(newCourse);
-      localStorage.setItem('courses', JSON.stringify(courses));
+      console.log('💾 Saving course:', courseToCreate);
+      
+      const createdCourse = await courseService.createCourse(courseToCreate);
+      
+      console.log('✅ Course created successfully:', createdCourse);
       
       alert('✅ ¡Curso creado exitosamente!');
       navigate('/dashboard');

@@ -23,6 +23,7 @@ export const Courses: React.FC = () => {
   const loadCourses = async () => {
     try {
       const coursesData = await courseService.getCourses();
+      console.log('📚 Courses loaded:', coursesData);
       setCourses(coursesData);
     } catch (error) {
       console.error('Error loading courses:', error);
@@ -136,7 +137,7 @@ export const Courses: React.FC = () => {
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <form onSubmit={handleSearch}>
+                src={course.image_url || course.image || 'https://images.pexels.com/photos/8197530/pexels-photo-8197530.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2'}
                 <input
                   type="text"
                   placeholder="Buscar cursos..."
@@ -256,7 +257,7 @@ export const Courses: React.FC = () => {
                 </h3>
                 
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                  {course.shortDescription}
+                  {course.short_description || course.shortDescription}
                 </p>
 
                 <div className="flex items-center justify-between mb-4">
