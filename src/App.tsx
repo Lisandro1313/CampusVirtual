@@ -168,6 +168,14 @@ function AppContent() {
               } 
             />
             <Route 
+              path="/new-course" 
+              element={
+                <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                  <NewCourse />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/analytics" 
               element={
                 <ProtectedRoute allowedRoles={['teacher', 'admin']}>
