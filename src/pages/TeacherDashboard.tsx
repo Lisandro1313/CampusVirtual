@@ -18,7 +18,6 @@ export const TeacherDashboard: React.FC = () => {
   }, [auth.user?.id]);
 
   const handleCreateCourse = () => {
-    console.log('🎯 Navegando a crear curso...');
     navigate('/new-course');
   };
 

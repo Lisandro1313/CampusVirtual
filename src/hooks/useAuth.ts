@@ -14,6 +14,7 @@ interface User {
 
 interface AuthState {
   user: User | null;
+  profile: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuthState = () => {
   const [auth, setAuth] = useState<AuthState>({
     user: null,
+    profile: null,
     isAuthenticated: false,
     isLoading: true,
   });
@@ -42,6 +44,7 @@ export const useAuthState = () => {
       const user = JSON.parse(savedUser);
       setAuth({
         user,
+        profile: user,
         isAuthenticated: true,
         isLoading: false,
       });
@@ -51,8 +54,6 @@ export const useAuthState = () => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    console.log('🔐 Intentando login con:', email);
-    
     // Buscar usuario en localStorage
     const allUsers = Object.keys(localStorage)
       .filter(key => key.startsWith('user-'))
@@ -69,16 +70,13 @@ export const useAuthState = () => {
     
     setAuth({
       user,
+      profile: user,
       isAuthenticated: true,
       isLoading: false,
     });
-    
-    console.log('✅ Login exitoso');
   };
 
   const signUp = async (email: string, password: string, name: string, phone?: string) => {
-    console.log('📝 Creando usuario:', email);
-    
     // Verificar si ya existe
     const existingUser = localStorage.getItem(`user-${email}`);
     if (existingUser) {
@@ -104,17 +102,17 @@ export const useAuthState = () => {
     
     setAuth({
       user: newUser,
+      profile: newUser,
       isAuthenticated: true,
       isLoading: false,
     });
-    
-    console.log('✅ Usuario creado exitosamente');
   };
 
   const signOut = () => {
     localStorage.removeItem('currentUser');
     setAuth({
       user: null,
+      profile: null,
       isAuthenticated: false,
       isLoading: false,
     });
@@ -140,7 +138,8 @@ export const useAuthState = () => {
     
     setAuth(prev => ({
       ...prev,
-      user: updatedUser
+      user: updatedUser,
+      profile: updatedUser
     }));
   };
 

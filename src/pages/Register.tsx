@@ -39,7 +39,6 @@ export const Register: React.FC = () => {
       alert('✅ ¡REGISTRO EXITOSO!\n\nTu cuenta fue creada correctamente.');
       navigate('/dashboard');
     } catch (err) {
-      console.error('❌ Registration failed:', err);
       setError(err instanceof Error ? err.message : 'Error al crear la cuenta');
     } finally {
       setIsLoading(false);

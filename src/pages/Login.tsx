@@ -30,23 +30,6 @@ export const Login: React.FC = () => {
       };
       localStorage.setItem('user-norma@esfd.com', JSON.stringify(teacherUser));
     }
-
-    // Usuario admin
-    if (!localStorage.getItem('user-admin@esfd.com')) {
-      const adminUser = {
-        id: 'admin-1',
-        name: 'Administrador',
-        email: 'admin@esfd.com',
-        role: 'admin',
-        avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2',
-        joinedAt: new Date().toISOString(),
-        bio: 'Administrador del sistema E.S.FD',
-        location: 'Punta Lara, Argentina',
-        phone: '1121673242',
-        password: 'admin123'
-      };
-      localStorage.setItem('user-admin@esfd.com', JSON.stringify(adminUser));
-    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,21 +47,6 @@ export const Login: React.FC = () => {
     }
   };
 
-  const demoUsers = [
-    { 
-      email: 'norma@esfd.com', 
-      role: 'Norma Skuletich (Docente)', 
-      password: 'docente123',
-      description: 'Directora y Magister en Educación'
-    },
-    { 
-      email: 'admin@esfd.com', 
-      role: 'Administrador', 
-      password: 'admin123',
-      description: 'Puede gestionar todo el sistema'
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -94,29 +62,27 @@ export const Login: React.FC = () => {
           </p>
         </div>
 
-        {/* Demo Users */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6 space-y-3">
-          <h3 className="text-white font-semibold mb-2 text-center">🚀 Usuarios de Prueba</h3>
-          {demoUsers.map((user, index) => (
-            <div key={index} className="bg-white/10 rounded-lg p-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-white text-sm font-medium">{user.email}</p>
-                  <p className="text-blue-200 text-xs">{user.role}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail(user.email);
-                    setPassword(user.password);
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded transition-colors"
-                >
-                  Usar
-                </button>
+        {/* Demo User */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6">
+          <h3 className="text-white font-semibold mb-2 text-center">🚀 Usuario de Prueba</h3>
+          <div className="bg-white/10 rounded-lg p-3">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-white text-sm font-medium">norma@esfd.com</p>
+                <p className="text-blue-200 text-xs">Docente</p>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('norma@esfd.com');
+                  setPassword('docente123');
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded transition-colors"
+              >
+                Usar
+              </button>
             </div>
-          ))}
+          </div>
         </div>
 
         <form className="bg-white rounded-2xl shadow-2xl p-8 space-y-6" onSubmit={handleSubmit}>
