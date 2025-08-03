@@ -35,15 +35,15 @@ export const Login: React.FC = () => {
 
   const demoUsers = [
     { 
-      email: 'admin@esfd.com', 
+      email: 'test@test.com', 
       role: 'Administrador', 
-      password: 'admin123',
+      password: 'test123',
       description: 'Puede gestionar todo el sistema'
     },
     { 
-      email: 'norma@esfd.com', 
+      email: 'teacher@test.com', 
       role: 'Norma Skuletich (Docente)', 
-      password: 'norma123',
+      password: 'test123',
       description: 'Directora y Magister en Educación'
     },
   ];
@@ -69,11 +69,28 @@ export const Login: React.FC = () => {
         </div>
 
         {/* Demo Users */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6">
-          <h3 className="text-white font-semibold mb-2 text-center">🚀 Sistema de Producción</h3>
-          <p className="text-blue-200 text-sm text-center">
-            Usa tus credenciales reales de Supabase para acceder al sistema.
-          </p>
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6 space-y-3">
+          <h3 className="text-white font-semibold mb-2 text-center">🚀 Usuarios de Prueba</h3>
+          {demoUsers.map((user, index) => (
+            <div key={index} className="bg-white/10 rounded-lg p-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-white text-sm font-medium">{user.email}</p>
+                  <p className="text-blue-200 text-xs">{user.role}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail(user.email);
+                    setPassword(user.password);
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded transition-colors"
+                >
+                  Usar
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
 
         <form className="bg-white rounded-2xl shadow-2xl p-8 space-y-6" onSubmit={handleSubmit}>

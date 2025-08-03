@@ -34,11 +34,17 @@ export const Register: React.FC = () => {
 
     setIsLoading(true);
 
+    console.log('📝 Register form submitted for:', email);
+
     try {
       await signUp(formData.email, formData.password, formData.name, formData.phone);
-      alert('✅ ¡REGISTRO EXITOSO!\n\nTu cuenta de estudiante fue creada correctamente.\nYa podés iniciar sesión.');
+      console.log('🎯 Sign up completed successfully');
+      // Después del registro exitoso, hacer login automático
+      await signIn(email, password);
+      navigate('/dashboard');
       navigate('/dashboard');
     } catch (err) {
+      console.error('❌ Registration failed:', err);
       console.error('Registration error:', err);
       // Create user in localStorage as fallback
       const newUser = {
@@ -54,7 +60,9 @@ export const Register: React.FC = () => {
       navigate('/dashboard');
     } finally {
       setIsLoading(false);
-    }
+      setIsLoading(false);
+    
+    console.log('🏁 Registration process finished');
   };
 
   return (
