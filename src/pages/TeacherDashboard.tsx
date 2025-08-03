@@ -73,7 +73,7 @@ export const TeacherDashboard: React.FC = () => {
             </div>
             <Link
               to="/teacher/course/new"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center"
             >
               <Plus className="h-5 w-5 mr-2" />
               Crear Curso
@@ -225,7 +225,7 @@ export const TeacherDashboard: React.FC = () => {
                   <h2 className="text-xl font-semibold text-gray-900">Mis Cursos</h2>
                   <Link
                     to="/teacher/course/new"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Nuevo Curso
@@ -298,8 +298,9 @@ export const TeacherDashboard: React.FC = () => {
                     </p>
                     <Link
                       to="/teacher/course/new"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center"
                     >
+                      <Plus className="h-4 w-4 mr-2" />
                       Crear Primer Curso
                     </Link>
                   </div>
