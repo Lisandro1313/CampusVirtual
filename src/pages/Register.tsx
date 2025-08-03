@@ -34,13 +34,13 @@ export const Register: React.FC = () => {
 
     setIsLoading(true);
 
-    console.log('📝 Register form submitted for:', email);
+    console.log('📝 Register form submitted for:', formData.email);
 
     try {
       await signUp(formData.email, formData.password, formData.name, formData.phone);
       console.log('🎯 Sign up completed successfully');
       // Después del registro exitoso, hacer login automático
-      await signIn(email, password);
+      await signIn(formData.email, formData.password);
       navigate('/dashboard');
       navigate('/dashboard');
     } catch (err) {
@@ -61,6 +61,7 @@ export const Register: React.FC = () => {
     } finally {
       setIsLoading(false);
       setIsLoading(false);
+    }
     
     console.log('🏁 Registration process finished');
   };
